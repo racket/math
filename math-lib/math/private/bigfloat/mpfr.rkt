@@ -71,10 +71,14 @@
 
 (define mpfr-lib (ffi-lib libmpfr-so '("4" "1" "") #:fail (λ () #f)))
 
+;; The mpfr_buildopt_tls_p() function indicates whether mpfr was compiled as thread-safe:
+(define thread-safe? (not (zero? ((get-ffi-obj 'mpfr_buildopt_tls_p mpfr-lib (_fun -> _int))))))
+
 (define-syntax get-mpfr-fun
   (syntax-rules ()
     [(_ name type) (get-mpfr-fun name type (make-not-available name))]
-    [(_ name type fail-thunk) (get-ffi-obj name mpfr-lib type fail-thunk)]))
+    [(_ name (_fun fun-arg ...) fail-thunk)
+     (get-ffi-obj name mpfr-lib (_fun #:in-original-place? (not thread-safe?) fun-arg ...) fail-thunk)]))
 
 (define mpfr-free-cache (get-mpfr-fun 'mpfr_free_cache (_fun -> _void)))
 
