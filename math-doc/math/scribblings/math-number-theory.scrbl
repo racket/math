@@ -79,7 +79,7 @@
   Returns @racket[#t] if the integers @racket[a b ...] are @italic{pairwise} coprime, meaning
   that each pair of integers is coprime.
 
-The numbers 2, 6 and 15 are coprime, but not @italic{pairwise} coprime, because 2 and 6 share the
+The numbers 2, 6 and 15 are coprime, but not @italic{pairwise} coprime, because 6 and 15 share the
 factor 3:
 @interaction[#:eval untyped-eval
                     (pairwise-coprime? 2 6 15)]
