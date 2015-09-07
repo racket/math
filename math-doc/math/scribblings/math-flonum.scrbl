@@ -1,10 +1,10 @@
-#lang unstable/2d scribble/manual
+#lang 2d scribble/manual
 
 @(require scribble/eval
           scribble/core
           scribble/html-properties
           racket/sandbox
-          unstable/2d/tabular
+          2d/tabular
           (for-label racket/base racket/vector
                      (except-in racket/list permutations) ; FIXME
                      math plot

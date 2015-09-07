@@ -13,7 +13,7 @@
                      "scribble-lib"
                      "typed-racket-doc"
                      "typed-racket-lib"
-                     "unstable-2d"))
+                     "2d-lib"))
 (define update-implies '("math-lib"))
 
 (define pkg-desc "Math library documentation")
