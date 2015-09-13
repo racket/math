@@ -33,12 +33,12 @@
            (and (andmap (λ: ([p : Natural]) 
                           (= (quadratic-character a p) 1))
                         odd-ps)
-                (cond 
+                (cond
                   [(divides? 8 n)  (= (modulo a 8) 1)]
                   [(divides? 4 n)  (= (modulo a 4) 1)]
                   [else            #t])))]))
 
-(: jacobi-symbol (-> Nonnegative-Integer Positive-Integer Integer))
+(: jacobi-symbol : Integer Positive-Integer -> (U -1 0 1))
 (define (jacobi-symbol a n)
   (unless (odd? n)
     (raise-argument-error 'jacobi "odd?" 1 a n))
@@ -47,9 +47,7 @@
     [else
      (define prime-factors (factorize n))
      (let next ([factor (first prime-factors)] [remaining-factors (rest prime-factors)])
-       (define p (first factor))
-       (define e (second factor))
-       (define qcap (quadratic-character a p))
-       (if (null? remaining-factors)
-           (expt qcap e)
-           (* (expt qcap e) (next (first remaining-factors) (rest remaining-factors)))))]))
+       (define qcap (quadratic-character a (first factor)))
+       (cast (if (null? remaining-factors)
+           (expt qcap (second factor))
+           (* (expt qcap (second factor)) (next (first remaining-factors) (rest remaining-factors)))) (U -1 0 1)))]))
