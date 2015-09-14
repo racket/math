@@ -5,7 +5,7 @@
          "modular-arithmetic.rkt"
          "number-theory.rkt")
 
-(provide quadratic-character quadratic-residue?)
+(provide quadratic-character quadratic-residue? jacobi-symbol)
 
 ; DEFINITION (Quadratic residue)
 ;   a in Un is a quadratic residue,
@@ -33,7 +33,21 @@
            (and (andmap (λ: ([p : Natural]) 
                           (= (quadratic-character a p) 1))
                         odd-ps)
-                (cond 
+                (cond
                   [(divides? 8 n)  (= (modulo a 8) 1)]
                   [(divides? 4 n)  (= (modulo a 4) 1)]
                   [else            #t])))]))
+
+(: jacobi-symbol : Integer Positive-Integer -> (U -1 0 1))
+(define (jacobi-symbol a n)
+  (unless (odd? n)
+    (raise-argument-error 'jacobi "odd?" 1 a n))
+  (cond
+    [(= n 1) 1]
+    [else
+     (define prime-factors (factorize n))
+     (let next ([factor (first prime-factors)] [remaining-factors (rest prime-factors)])
+       (define qcap (quadratic-character a (first factor)))
+       (cast (if (null? remaining-factors)
+           (expt qcap (second factor))
+           (* (expt qcap (second factor)) (next (first remaining-factors) (rest remaining-factors)))) (U -1 0 1)))]))

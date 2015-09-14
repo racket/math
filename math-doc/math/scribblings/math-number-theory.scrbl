@@ -146,6 +146,20 @@ This function is also known as the @emph{Legendre symbol}.
                       (quadratic-character 3 5)]
 }
 
+@margin-note{Wikipedia: @hyperlink["http://en.wikipedia.org/wiki/Jacobi_symbol"]{Jacobi Symbol}}
+@defproc[(jacobi-symbol [a Nonnegative-Integer] [n Positive-Integer]) (U -1 0 1)]{
+ Computes the Jacobi symbol for any nonnegative integer @racket[a] and any positive odd integer @racket[n].                                                              
+
+ If @racket[n] is not an odd positive integer, @racket[(jacobi-symbol a n)] throws an exception.
+
+ @interaction[#:eval untyped-eval
+              (jacobi-symbol 1 1)
+              (jacobi-symbol 8 11)
+              (jacobi-symbol 39 27)
+              (jacobi-symbol 22 59)
+              (jacobi-symbol 32 8)]
+}
+
 @margin-note{Wikipedia: @hyperlink["http://en.wikipedia.org/wiki/Modular_multiplicative_inverse"]{Multiplicative Inverse}}
 @defproc[(modular-inverse [a Integer] [n Integer]) Natural]{
   Returns the inverse of @racket[a] modulo @racket[n] if @racket[a] and @racket[n] are coprime,
