@@ -50,8 +50,6 @@ Possibly the most useful unimplemented algorithms are
           @item{Eigendecomposition}
           @item{Decomposition-based solvers}
           @item{Pseudoinverse and least-squares solving}]
-All of these are planned for the next Racket release, as well as fast flonum-specific matrix
-operations and LAPACK integration.
 
 @local-table-of-contents[]
 
