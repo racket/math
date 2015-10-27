@@ -574,6 +574,8 @@ all divisors of @racket[n].
 }
 
 @margin-note{OEIS: @hyperlink["http://oeis.org/A001222"]{Big Omega}}
+@margin-note{OEIS: @hyperlink["http://oeis.org/wiki/Omega(n),_number_of_prime_factors_of_n_(with_multiplicity)"]{Big Omega}}
+
 @defproc[(prime-omega [n Natural]) natural?]{
 Counting multiplicities the number of prime factors of @racket[n] is returned.
 
