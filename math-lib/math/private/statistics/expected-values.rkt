@@ -54,11 +54,11 @@
                            (length xs)))]))
   (cond [(zero? n)  +nan.0]
         [else
-         (define m2 (expt (max 0 (sum xs^2)) 3/2))
+         (define m2 (assert (expt (max 0 (sum xs^2)) 3/2) real?))
          (cond [(zero? m2)  +nan.0]
                [else
                 (define m3 (sum xs^3))
-                (adjust-skewness (/ (* m3 (sqrt n)) m2) n bias)])]))
+                (adjust-skewness (/ (* m3 (sqrt (real->double-flonum n))) m2) n bias)])]))
 
 (: kurtosis* (Symbol Real (Sequenceof Real) (Option (Sequenceof Real)) (U #t #f Real)
                      -> Nonnegative-Real))
