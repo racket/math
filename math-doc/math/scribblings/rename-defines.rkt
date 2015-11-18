@@ -14,6 +14,7 @@
           (with-syntax ([(y ...)  (generate-temporaries #'(x ...))])
             (syntax/loc stx
               (begin
+                (define-syntaxes (y ...) (values))
                 (define-syntax x (make-rename-transformer #'y)) ...
                 (define-values (y ...) expr))))]
          [(begin e ...)
