@@ -1,7 +1,7 @@
 #lang typed/racket/base
 
 (require "../../base.rkt"
-         "../../flonum.rkt"
+         racket/flonum
          "../parameters.rkt"
          "../unsafe.rkt"
          "../vector/vector-fft.rkt"

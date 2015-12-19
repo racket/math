@@ -5,7 +5,6 @@
          racket/list
          racket/future
          "../../base.rkt"
-         "../../flonum.rkt"
          "../parameters.rkt"
          "../unsafe.rkt")
 

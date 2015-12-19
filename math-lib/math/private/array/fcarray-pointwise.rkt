@@ -3,7 +3,7 @@
 (require racket/fixnum
          (only-in racket/math conjugate)
          (for-syntax racket/base)
-         "../../flonum.rkt"
+         racket/flonum
          "../unsafe.rkt"
          "array-struct.rkt"
          "array-broadcast.rkt"

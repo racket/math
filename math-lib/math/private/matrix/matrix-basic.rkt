@@ -2,7 +2,6 @@
 
 (require racket/list
          racket/fixnum
-         math/flonum
          math/base
          "matrix-types.rkt"
          "matrix-arithmetic.rkt"
@@ -18,7 +17,9 @@
          "../array/array-pointwise.rkt"
          "../array/array-convert.rkt"
          "../array/utils.rkt"
-         "../vector/vector-mutate.rkt")
+         "../vector/vector-mutate.rkt"
+         "../flonum/flonum-functions.rkt"
+         "../flonum/flonum-constants.rkt")
 
 (provide
  ;; Extraction

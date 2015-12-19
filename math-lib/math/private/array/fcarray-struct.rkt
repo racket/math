@@ -9,7 +9,9 @@
 
 (module defs typed/racket/base
   
-  (require "../../flonum.rkt"
+  (require racket/flonum
+           "../flonum/flonum-functions.rkt"
+           "../flonum/flvector-syntax.rkt"
            "../unsafe.rkt"
            "array-struct.rkt"
            "utils.rkt"

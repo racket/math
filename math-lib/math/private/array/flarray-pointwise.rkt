@@ -2,7 +2,8 @@
 
 (require racket/flonum
          (for-syntax racket/base)
-         "../../flonum.rkt"
+         "../flonum/flvector-syntax.rkt"
+         "../flonum/flvector.rkt"
          "array-struct.rkt"
          "array-broadcast.rkt"
          "array-pointwise.rkt"

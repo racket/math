@@ -13,7 +13,7 @@ See "How to Measure Errors" in the LAPACK manual for more details:
 
 (require racket/list
          racket/fixnum
-         math/flonum
+         "../flonum/flonum-constants.rkt"
          "matrix-types.rkt"
          "matrix-arithmetic.rkt"
          "matrix-constructors.rkt"
