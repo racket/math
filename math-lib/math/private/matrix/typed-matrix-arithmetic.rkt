@@ -71,7 +71,8 @@
            ((Matrix Float-Complex) (Listof (Matrix Float-Complex)) -> (Matrix Float-Complex))
            ((Matrix Number) (Listof (Matrix Number)) -> (Matrix Number))))
 (define (matrix*/ns a as)
-  (cond [(empty? as)  a]
+  (cond [(empty? as) (matrix-shape a) ;; does argument checking
+                      a]
         [else  (matrix*/ns (inline-matrix-multiply a (first as)) (rest as))]))
 
 (: matrix* (case-> ((Matrix Flonum) (Matrix Flonum) * -> (Matrix Flonum))
@@ -87,14 +88,15 @@
            ((Matrix Float-Complex) (Listof (Matrix Float-Complex)) -> (Matrix Float-Complex))
            ((Matrix Number) (Listof (Matrix Number)) -> (Matrix Number))))
 (define (matrix+/ns a as)
-  (cond [(empty? as)  a]
+  (cond [(empty? as) (matrix-shape a) ;; does argument checking
+                     a]
         [else  (matrix+/ns (inline-matrix+ a (first as)) (rest as))]))
 
 (: matrix+ (case-> ((Matrix Flonum) (Matrix Flonum) * -> (Matrix Flonum))
                    ((Matrix Real) (Matrix Real) * -> (Matrix Real))
                    ((Matrix Float-Complex) (Matrix Float-Complex) * -> (Matrix Float-Complex))
                    ((Matrix Number) (Matrix Number) * -> (Matrix Number))))
-(define (matrix+ a . as) (call/ns (λ () (matrix+/ns a as))))
+(define (matrix+ a . as) (call/ns (λ ()  (matrix+/ns a as))))
 
 
 (: matrix-/ns
@@ -103,7 +105,8 @@
            ((Matrix Float-Complex) (Listof (Matrix Float-Complex)) -> (Matrix Float-Complex))
            ((Matrix Number) (Listof (Matrix Number)) -> (Matrix Number))))
 (define (matrix-/ns a as)
-  (cond [(empty? as)  a]
+  (cond [(empty? as) (matrix-shape a) ;; does argument checking
+                      a]
         [else  (matrix-/ns (inline-matrix- a (first as)) (rest as))]))
 
 (: matrix- (case-> ((Matrix Flonum) (Matrix Flonum) * -> (Matrix Flonum))

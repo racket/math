@@ -29,12 +29,19 @@
                                     (Integer A A -> (Matrix A)))))
 (define identity-matrix
   (case-lambda
-    [(m)  (diagonal-array 2 m 1 0)]
-    [(m one)  (diagonal-array 2 m one 0)]
-    [(m one zero)  (diagonal-array 2 m one zero)]))
+    [(m) (identity-matrix m 1 0)]
+    [(m one) (identity-matrix m one 0)]
+    [(m one zero)
+     (when (or (not (index? m)) (= m 0))
+       (raise-argument-error 'identity-matrix "Positive-Index" m))
+     (diagonal-array 2 m one zero)]))
 
 (: make-matrix (All (A) (Integer Integer A -> (Matrix A))))
 (define (make-matrix m n x)
+  (when (or (not (index? m)) (= m 0))
+       (raise-argument-error 'make-matrix "Positive-Index" m))
+  (when (or (not (index? n)) (= n 0))
+       (raise-argument-error 'make-matrix "Positive-Index" n))
   (make-array (vector m n) x))
 
 (: build-matrix (All (A) (Integer Integer (Index Index -> A) -> (Matrix A))))

@@ -312,25 +312,24 @@
 ;; ===================================================================================================
 ;; Pointwise operations
 
-(define-syntax-rule (test-matrix-map (matrix-map ...) (array-map ...))
-  (begin
-    (for: ([a  (in-list nonmatrices)])
-      (check-exn exn:fail:contract? (λ () (matrix-map ... a)))
-      (check-exn exn:fail:contract? (λ () (matrix-map ... (matrix [[1]]) a))))
-    
-    (for*: ([m  '(2 3 4)]
-            [n  '(2 3 4)])
-      (define a0 (random-matrix m n))
-      (define a1 (random-matrix m n))
-      (define a2 (random-matrix m n))
-      (check-equal? (matrix-map ... a0)
-                    (array-map ... a0))
-      (check-equal? (matrix-map ... a0 a1)
-                    (array-map ... a0 a1))
-      (check-equal? (matrix-map ... a0 a1 a2)
-                    (array-map ... a0 a1 a2))
-      ;; Don't know why this (void) is necessary, but TR complains without it
-      (void))))
+(define-syntax (test-matrix-map stx)
+  (syntax-case stx ()
+    [(test-matrix-map (matrix-map ...) (array-map ...))
+     #`(begin
+         (for: ([a  (in-list nonmatrices)])
+           (check-exn exn:fail:contract? #,(syntax/loc stx (λ () (matrix-map ... a))))
+           (check-exn exn:fail:contract? (λ () (matrix-map ... (matrix [[1]]) a))))
+         (for*: ([m  '(2 3 4)]
+                 [n  '(2 3 4)])
+           (define a0 (random-matrix m n))
+           (define a1 (random-matrix m n))
+           (define a2 (random-matrix m n))
+           (check-equal? (matrix-map ... a0)
+                         (array-map ... a0))
+           (check-equal? (matrix-map ... a0 a1)
+                         (array-map ... a0 a1))
+           (check-equal? (matrix-map ... a0 a1 a2)
+                         (array-map ... a0 a1 a2))))]))
 
 (test-matrix-map (matrix-map -) (array-map -))
 (test-matrix-map ((values matrix-map) -) (array-map -))
