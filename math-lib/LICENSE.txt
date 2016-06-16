@@ -1,6 +1,11 @@
 The math collection is distributed under the GNU Lesser General Public
-License Version 3 (LGPLv3) just like the majority of Racket's libraries.
-The LGPLv3 license text is included in the file "COPYING_LESSER.txt".
+License (LGPL), just like the majority of Racket's libraries.  This
+means that you can link this package into proprietary applications,
+provided you follow the rules stated in the LGPL.  You can also modify
+this package; if you distribute a modified version, you must distribute
+it under the terms of the LGPL, which in particular means that you must
+release the source code for the modified software.  See
+http://www.gnu.org/copyleft/lesser.html for more information.
 
 Some of the math library code is derived from the C++ project Boost,
 from source files released under the Boost Software License Version 1.0
