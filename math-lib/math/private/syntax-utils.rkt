@@ -1,7 +1,7 @@
 #lang racket/base
 
 (require (for-syntax racket/base)
-         (for-template racket)
+         (for-template racket/base)
          racket/syntax)
 
 (provide (all-defined-out)
