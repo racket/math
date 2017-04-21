@@ -15,7 +15,7 @@
       [_  (syntax/loc stx typed-op)])))
 
 (module ensures racket/base
-  (require racket/flonum
+  (require (except-in racket/flonum for/flvector for*/flvector)
            typed/racket/base)
   
   (provide (all-defined-out))
