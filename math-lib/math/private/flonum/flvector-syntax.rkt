@@ -12,7 +12,7 @@
                        typed/untyped-utils)
            typed/racket/base
            racket/unsafe/ops
-           racket/flonum
+           (except-in racket/flonum for/flvector for*/flvector)
            racket/fixnum
            "../syntax-utils.rkt"
            "../exception.rkt"
@@ -103,7 +103,7 @@
   )  ; module
 
 (module defs typed/racket/base
-  (require racket/flonum
+  (require (except-in racket/flonum for/flvector for*/flvector)
            racket/fixnum
            racket/unsafe/ops
            (submod ".." syntax-defs)
