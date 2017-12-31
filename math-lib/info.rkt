@@ -2,7 +2,7 @@
 
 (define collection 'multi)
 
-(define deps '("base"
+(define deps '(["base" #:version "6.11.0.6"]
                "r6rs-lib"
                "typed-racket-lib"
                "typed-racket-more"

@@ -6,6 +6,8 @@
          ffi/unsafe/custodian
          ffi/unsafe/define
          ffi/unsafe/atomic
+         ffi/unsafe/global
+         ffi/unsafe/custodian
          racket/math
          racket/runtime-path
          racket/promise
@@ -87,9 +89,9 @@
 
 (when mpfr-lib
   ;; Register `mpfr-free-cache` as shutdown action once within each place
-  (let ([ht ((get-ffi-obj 'scheme_get_place_table #f (_fun -> _racket)))])
+  (let ([ht (get-place-table)])
     (unless (hash-ref ht 'mpfr-finalization-registered? #f)
-      (let ([root-custodian ((get-ffi-obj 'scheme_make_custodian #f (_fun _pointer -> _scheme)) #f)])
+      (let ([root-custodian (make-custodian-at-root)])
         (call-as-atomic
          (lambda ()
            (parameterize ([current-custodian root-custodian])
