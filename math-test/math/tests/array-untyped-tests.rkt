@@ -67,10 +67,8 @@
   
   (define array-exports
     (let ()
-      (match-define (list (list #f _ ...)
-                          (list 1 _ ...)
-                          (list 0 array-exports ...))
-        (syntax-local-module-exports #'math/array))
+      (match-define (list 0 array-exports ...)
+        (assoc 0 (syntax-local-module-exports #'math/array)))
       (filter looks-like-value? array-exports)))
   )
 

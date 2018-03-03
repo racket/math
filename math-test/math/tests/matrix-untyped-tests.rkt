@@ -20,10 +20,8 @@
   
   (define matrix-exports
     (let ()
-      (match-define (list (list #f _ ...)
-                          (list 1 _ ...)
-                          (list 0 matrix-exports ...))
-        (syntax-local-module-exports #'math/matrix))
+      (match-define (list 0 matrix-exports ...)
+        (assoc 0 (syntax-local-module-exports #'math/matrix)))
       (filter looks-like-value? matrix-exports)))
   )
 
