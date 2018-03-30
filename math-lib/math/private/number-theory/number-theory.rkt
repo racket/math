@@ -58,7 +58,7 @@
 
 (define *VERY-SMALL-PRIME-LIMIT* 1000)
 ; Determines the size of the pre-built table of very small primes
-(define *SMALL-FACORIZATION-LIMIT* *VERY-SMALL-PRIME-LIMIT*)
+(define *SMALL-FACTORIZATION-LIMIT* *VERY-SMALL-PRIME-LIMIT*)
 ; Determines whether to use naive factorization or Pollards rho method.
 
 
@@ -307,7 +307,7 @@
 
 (: factorize : Natural -> (Listof (List Natural Natural)))
 (define (factorize n)
-  (if (< n *SMALL-FACORIZATION-LIMIT*)  ; NOTE: Do measurement of best cut
+  (if (< n *SMALL-FACTORIZATION-LIMIT*)  ; NOTE: Do measurement of best cut
       (factorize-small n)
       (factorize-large n)))
 
@@ -356,7 +356,7 @@
 
 (: pollard-factorize : Natural -> (Listof (List Natural Natural)))
 (define (pollard-factorize n)
-  (if (< n *SMALL-FACORIZATION-LIMIT*)
+  (if (< n *SMALL-FACTORIZATION-LIMIT*)
       (factorize-small n)
       (cond
         [(= n 1)        '()]
