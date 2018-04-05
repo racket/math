@@ -587,7 +587,7 @@
 ;;;
 
 (: divisors : Integer -> (Listof Natural))
-;   return the positive divisorts of n
+;   return the positive divisors of n
 (define (divisors n)
   (cond [(zero? n) '()]
         [else (define n+ (if (positive? n) n (- n)))
