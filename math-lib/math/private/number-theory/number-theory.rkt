@@ -125,7 +125,7 @@
 ;;; PRIMES
 ;;;
 
-(: odd-prime? : Natural -> Boolean)
+(: odd-prime? : Integer -> Boolean)
 (define (odd-prime? n)
   (and (odd? n) (prime? n)))
 
