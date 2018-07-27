@@ -169,6 +169,7 @@ For any function of this type, both optional arguments should default to @racket
 interpreted as specified in the description of @racket[inv-cdf].
 }
 
+@defform[#:kind "type" #:link-target? #f (distribution In Out)]{}
 @defstruct*[distribution ([pdf (PDF In)] [sample (Sample Out)])]{
 The parent type of @tech{distribution objects}. The @racket[In] type parameter is the data type a
 distribution accepts as arguments to its @tech{pdf}. The @racket[Out] type parameter is the data
@@ -183,6 +184,7 @@ See @racket[pdf] and @racket[sample] for uncurried forms of @racket[distribution
 @racket[distribution-sample].
 }
 
+@defform[#:kind "type" #:link-target? #f (ordered-dist In Out)]{}
 @defstruct*[(ordered-dist distribution) ([cdf (CDF In)]
                                          [inv-cdf (Inverse-CDF Out)]
                                          [min Out]
