@@ -71,7 +71,7 @@
     [(windows) '(so "libmpfr-4.dll")]
     [else '(so "libmpfr")]))
 
-(define mpfr-lib (ffi-lib libmpfr-so '("4" "1" "") #:fail (λ () #f)))
+(define mpfr-lib (ffi-lib libmpfr-so '("6" "4" "1" "") #:fail (λ () #f)))
 
 ;; The mpfr_buildopt_tls_p() function indicates whether mpfr was compiled as thread-safe:
 (define thread-safe? ((get-ffi-obj 'mpfr_buildopt_tls_p mpfr-lib (_fun -> _bool)
