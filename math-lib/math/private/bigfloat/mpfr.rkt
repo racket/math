@@ -239,7 +239,7 @@
                                     (_fun _mpz-pointer _mpfr-pointer -> _exp_t)))))
 (define mpfr-get-str
   (get-mpfr-fun 'mpfr_get_str (_fun _pointer (_cpointer _exp_t) _int _ulong _mpfr-pointer _rnd_t
-                                    -> _bytes)))
+                                    -> _pointer)))
 
 ;; Conversions from other types to _mpfr
 (define mpfr-set (get-mpfr-fun 'mpfr_set (_fun _mpfr-pointer _mpfr-pointer _rnd_t -> _int)))
@@ -492,7 +492,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
   (define exp-ptr (cast (malloc _exp_t 'atomic-interior) _pointer (_cpointer _exp_t)))
   (define bs (mpfr-get-str #f exp-ptr base 0 x rnd))
   (define exp (ptr-ref exp-ptr _exp_t))
-  (define str (bytes->string/utf-8 bs))
+  (define str (bytes->string/utf-8 (cast bs _pointer _bytes)))
   (mpfr-free-str bs)
   (values exp str))
 
