@@ -3,6 +3,8 @@
 (require math/bigfloat
          math/flonum
          math/base
+         (only-in math/private/bigfloat/mpfr
+                  mpfr-get-version)
          rackunit)
 
 ;; Exact tests
@@ -373,10 +375,19 @@
            (list +nan.bf +nan.bf -inf.bf -min.bf -0.bf 0.bf +min.bf +inf.bf +nan.bf +nan.bf +nan.bf))
           (list
            bfeint
-           (list -inf.bf -max.bf -1.bf -min.bf -0.bf 0.bf +min.bf
+           (list -inf.bf -max.bf
+                 -1.bf -min.bf
+                 -0.bf 0.bf +min.bf
                  1.bf +max.bf +inf.bf +nan.bf)
-           (list +nan.bf +nan.bf +nan.bf +nan.bf -inf.bf -inf.bf (bf #e-744261117.37767732)
-                 (bf #e1.8951178163559368) +inf.bf +inf.bf +nan.bf))
+           (append
+            ;; MPFR changed handling of negative arguments between version 3.x and 4.x:
+            (if (regexp-match? #rx"^3[.]" (mpfr-get-version))
+                (list +nan.bf +nan.bf
+                      +nan.bf +nan.bf)
+                (list -0.bf (bf "-2.3825649048879511e-323228497")
+                      (bf #e-0.21938393439552029) (bf #e-744261117.37767732)))
+            (list -inf.bf -inf.bf (bf #e-744261117.37767732)
+                  (bf #e1.8951178163559368) +inf.bf +inf.bf +nan.bf)))
           (list
            bfli2
            (list -inf.bf -max.bf -1.bf -min.bf -0.bf

@@ -49,6 +49,7 @@
  bf
  bigfloat-deserialize-info
  ;; Low-level stuff
+ mpfr-get-version
  mpfr-lib
  get-mpfr-fun
  _rnd_t
@@ -218,6 +219,8 @@
 
 ;; ===================================================================================================
 ;; Foreign functions
+
+(define mpfr-get-version (get-mpfr-fun 'mpfr_get_version (_fun -> _string)))
 
 (define mpfr-get-emin (get-mpfr-fun 'mpfr_get_emin (_fun -> _exp_t)))
 (define mpfr-get-emax (get-mpfr-fun 'mpfr_get_emax (_fun -> _exp_t)))
