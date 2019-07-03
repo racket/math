@@ -12,7 +12,8 @@
          "private/functions/psi.rkt"
          "private/functions/incomplete-gamma.rkt"
          "private/functions/incomplete-beta.rkt"
-         "private/functions/stirling-error.rkt")
+         "private/functions/stirling-error.rkt"
+         "private/functions/fresnel.rkt")
 
 (require/untyped-contract
  "private/functions/gamma.rkt"
@@ -56,7 +57,8 @@
           "private/functions/psi.rkt"
           "private/functions/incomplete-gamma.rkt"
           "private/functions/incomplete-beta.rkt"
-          "private/functions/stirling-error.rkt")
+          "private/functions/stirling-error.rkt"
+          "private/functions/fresnel.rkt")
          gamma
          log-gamma
          beta log-beta
