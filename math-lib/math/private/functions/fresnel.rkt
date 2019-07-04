@@ -1,9 +1,12 @@
 #lang typed/racket/base
 
 #|
-Fresnel Integrals:
+(natural)Fresnel Integrals:
  S(x)=∫sin(π/2t²) |0->x
  C(x)=∫cos(π/2t²) |0->x
+or regular
+ S(x)=∫sin(t²) |0->x
+ C(x)=∫cos(t²) |0->x
 
 floating point implementation:
   adaptation of the algorithm in the fresnl.c file from Cephes,
@@ -29,7 +32,8 @@ update documentation
 (require "../../base.rkt"
          "../../flonum.rkt")
 
-(provide flFresnel-S Fresnel-S flFresnel-C Fresnel-C)
+(provide flFresnel-S Fresnel-S Fresnel-RS
+         flFresnel-C Fresnel-C Fresnel-RC)
 
 ;------------------------------
 ;polinomials for the rational assymptotic aproximation for S & C
@@ -147,52 +151,85 @@ update documentation
 ;------------------------------
 (define (Fresnel-S [x : Real]) : Real (flFresnel-S (fl x)))
 (define (Fresnel-C [x : Real]) : Real (flFresnel-C (fl x)))
+(define (Fresnel-RS [x : Real]) : Real
+  (* (flsqrt (fl/ pi 2.0)) (flFresnel-S (* (flsqrt (fl/ 2.0 pi)) (fl x)))))
+(define (Fresnel-RC [x : Real]) : Real
+  (* (flsqrt (fl/ pi 2.0)) (flFresnel-C (* (flsqrt (fl/ 2.0 pi)) (fl x)))))
 
 ;------------------------------
 (module* bfFresnel #f
   (require math/bigfloat)
-  (provide bfFresnel-S bfFresnel-C)
+  (provide bfFresnel-S bfFresnel-RS bfFresnel-C bfFresnel-RC)
   ;this implementation is potentially exact
-  ;but for large x (> 5!) it is really slow and needs a lot of bits in bf-precision!
-  (define (bfFresnel-S [x : Bigfloat])
-    (define X (bf* x (bfsqrt (bf/ pi.bf (bf 2)))))
-    (define X4 (bfexpt X (bf 4)))
-    (define prsn (bfexpt (bf 1/2) (bf (bf-precision))))
-    (define-values (s l)
-       (for/fold : (Values Bigfloat Bigfloat)
-         ([s : Bigfloat (bf/ (bfexpt X (bf 3)) (bf 3))]
-          [l : Bigfloat (bf/ (bfexpt X (bf 3)) (bf 3))])
-         ([n (in-naturals 1)]
-          #:break (bf< (bfabs (bf/ l s)) prsn))
-         (define l+ (bf* (bf -1) X4 (bf* l (bf (/ (- (* 4 n) 1)
-                                                  (* 2 n)(+ (* 2 n) 1)(+ (* 4 n) 3))))))
-         (values (bf+ s l+) l+)))
-     (bf* (bfsqrt (bf/ (bf 2) pi.bf)) s))
-  (define (bfFresnel-C [x : Bigfloat])
-    (define X (bf* x (bfsqrt (bf/ pi.bf (bf 2)))))
-    (define X4 (bfexpt X (bf 4)))
-    (define prsn (bfexpt (bf 1/2) (bf (bf-precision))))
-    (define-values (s l)
-       (for/fold : (Values Bigfloat Bigfloat)
-         ([s : Bigfloat (bf/ (bfexpt X (bf 1)) (bf 1))]
-          [l : Bigfloat (bf/ (bfexpt X (bf 1)) (bf 1))])
-         ([n (in-naturals 1)]
-          #:break (bf< (bfabs (bf/ l s)) prsn))
-         (define l+ (bf* (bf -1) X4 (bf* l (bf (/ (- (* 4 n) 3)
-                                                  (* 2 n)(- (* 2 n) 1)(+ (* 4 n) 1))))))
-         (values (bf+ s l+) l+)))
-     (bf* (bfsqrt (bf/ (bf 2) pi.bf)) s))
-  )
+  ;but for large x (> 5!) it is really slow and needs a lot of bits in bf-precision (~2x²)!
+  (define (precision-check [a : Bigfloat][maxp : Integer]) : Integer
+    (define p (bf-precision))
+    (define a2 (expt (bigfloat->real a) 2))
+    (define min-precision-needed (* 2 a2))
+    (define expected-precision-loss (* 4/5 a2))
+    (define mp (+ 5 (round (inexact->exact (max min-precision-needed (+ p expected-precision-loss))))))
+    (cond
+      [(<= mp maxp) mp]
+      [else
+       (error (format "bfFresnel: calculation aborted
+ Minimum precision needed for calculating ~a... is ~a
+ This is more than the maximum allowed calculating precision ~a->~a."
+                      (bigfloat->flonum a) mp p maxp))]))
+  (define (bfFresnel-RS [x : Bigfloat][maxp : Integer (* 2 (bf-precision))])
+    (define p (bf-precision))
+    (bfcopy
+     (parameterize ([bf-precision (precision-check x maxp)])
+       (define X3 (bfexpt x (bf 3)))
+       (define X4 (bfexpt x (bf 4)))
+       (define prsn (bfexpt (bf 1/2) (bf p)))
+       (define-values (s l)
+         (for/fold : (Values Bigfloat Bigfloat)
+           ([s : Bigfloat (bf/ X3 (bf 3))]
+            [l : Bigfloat (bf/ X3 (bf 3))])
+           ([n (in-naturals 1)]
+            #:break (bf< (bfabs (bf/ l s)) prsn))
+           (define l+ (bf* (bf -1) X4 (bf* l (bf (/ (- (* 4 n) 1)
+                                                    (* 2 n)(+ (* 2 n) 1)(+ (* 4 n) 3))))))
+           (values (bf+ s l+) l+)))
+       s)))
+  (define (bfFresnel-S [x : Bigfloat][maxp : Integer (* 2 (bf-precision))])
+    (bf* (bfsqrt (bf/ (bf 2) pi.bf))
+         (bfFresnel-RS (bf* (bfsqrt (bf/ pi.bf (bf 2))) x) maxp)))
+  
+  (define (bfFresnel-RC [x : Bigfloat][maxp : Integer (* 2 (bf-precision))])
+    (define p (bf-precision))
+    (bfcopy
+     (parameterize ([bf-precision (precision-check x maxp)])
+       (define X4 (bfexpt x (bf 4)))
+       (define prsn (bfexpt (bf 1/2) (bf (bf-precision))))
+       (define-values (s l)
+         (for/fold : (Values Bigfloat Bigfloat)
+           ([s : Bigfloat x]
+            [l : Bigfloat x])
+           ([n (in-naturals 1)]
+            #:break (bf< (bfabs (bf/ l s)) prsn))
+           (define l+ (bf* (bf -1) X4 (bf* l (bf (/ (- (* 4 n) 3)
+                                                    (* 2 n)(- (* 2 n) 1)(+ (* 4 n) 1))))))
+           (values (bf+ s l+) l+)))
+       s)))
+  (define (bfFresnel-C [x : Bigfloat][maxp : Integer (* 2 (bf-precision))])
+    (bf* (bfsqrt (bf/ (bf 2) pi.bf))
+         (bfFresnel-RC (bf* (bfsqrt (bf/ pi.bf (bf 2))) x) maxp)))
+    )
 
 #;(module* test racket/base
+    ;some functions to check the function.
+    ;commented out, because (partly) put in function-tests from math-test
   (require math/bigfloat
            rackunit)
   (require (submod "..")
            (submod ".." bfFresnel))
   
-  (define (test a)
-    (check-= (Fresnel-S a) (bigfloat->flonum (bfFresnel-S (bf a))) 1e-15)
-    (check-= (Fresnel-C a) (bigfloat->flonum (bfFresnel-C (bf a))) 1e-15))
+  (define (test a #:ε [ε 1e-15])
+    (check-= (Fresnel-S a)  (bigfloat->flonum (bfFresnel-S (bf a)))  ε (format "(Fresnel-S ~a)" a))
+    (check-= (Fresnel-RS a) (bigfloat->flonum (bfFresnel-RS (bf a))) ε (format "(Fresnel-RS ~a)" a))
+    (check-= (Fresnel-C a)  (bigfloat->flonum (bfFresnel-C (bf a)))  ε (format "(Fresnel-C ~a)" a))
+    (check-= (Fresnel-RC a) (bigfloat->flonum (bfFresnel-RC (bf a))) ε (format "(Fresnel-RC ~a)" a)))
 
   (test 0.1)
   (test 0.5)
@@ -203,13 +240,41 @@ update documentation
   (test 2.5)
   (test 3.3)
   (test 4.4)
-  ;(test 15.15)
-  (bf-precision 1024)
-  (test 15.15)
-
+  ;(test 15.15);<-bf-precision to low (standard=128)
+  (parameterize ([bf-precision 1024])
+    (test 12.087951096163412);even though this is ok for C
+    (test 15.15 #:ε 1e-14);this fails for RC @1e-15
+    )
   (check-equal? (Fresnel-S -1)(-(Fresnel-S 1)))
   (check-equal? (Fresnel-C -1)(-(Fresnel-C 1)))
   (check-equal? (Fresnel-S -5)(-(Fresnel-S 5)))
   (check-equal? (Fresnel-C -5)(-(Fresnel-C 5)))
+
+  #;(let ()
+    (local-require plot)
+    (define (mk)(* 100 (random)))
+    (define L
+      (for/list : (Listof (List Flonum Flonum))
+        ([i (in-range 5000)])
+        (define a (mk))
+        (list a
+              (- (Fresnel-S a)
+                 (bigfloat->flonum
+                  (bfFresnel-S (bf a) 50000))))))
+    (define M+ (apply max ((inst map Real (List Flonum Flonum)) (inst cadr Real) L)))
+    (define M- (apply min ((inst map Real (List Flonum Flonum)) (inst cadr Real) L)))
+    (define K : (HashTable Real Real) (make-hash))
+    (for ([i (in-list L)])
+      (hash-update! K (if (= (cadr i) 0) -33 (inexact->exact (round (/ (log (abs (cadr i)))(log 10))))) add1 (λ () 0)))
+    (plot (points L)
+          #:y-max (* 1.2 M+)
+          #:y-min (* 1.2 M-)
+          #:width 1000)
+    (plot (discrete-histogram
+           ((inst sort (List Real Real))
+            ((inst map (List Real Real)(Pairof Real Real))
+             (λ ([x : (Pairof Real Real)]) (list (car x)(cdr x)))
+             (hash->list K))
+            < #:key car))))
     
   )

@@ -71,3 +71,29 @@
 (check-true (power-of-two? 1/2))
 (check-false (power-of-two? 0))
 (check-false (power-of-two? -1))
+
+;; ---------------------------------------------------------------------------------------------------
+;; Fresnel integrals
+(ε (* 2 epsilon.0)); real maximum error (* 20 epsilon.0) ~ 5e-15
+
+;check if function is odd
+(check-equal? (Fresnel-S -1)  (- (Fresnel-S 1)))
+(check-equal? (Fresnel-RS -1) (- (Fresnel-RS 1)))
+(check-equal? (Fresnel-C -1)  (- (Fresnel-C 1)))
+(check-equal? (Fresnel-RC -1) (- (Fresnel-RC 1)))
+
+;check some values calculated with bfFresnel (submod "math/private/functions/fesnel.rkt" bfFresnel)
+(check-= (Fresnel-S  1) 0.4382591473903547660767566966251526374943 (ε))
+(check-= (Fresnel-S  2) 0.3434156783636982421953008159580684568872 (ε))
+(check-= (Fresnel-S  5) 0.4991913819171168867519283804659916406959 (ε))
+(check-= (Fresnel-S 10) 0.4681699785848822404033511108106786585115 (ε))
+(check-= (Fresnel-S 20) 0.4840845359259538927147542448558347167707 (ε))
+(check-= (Fresnel-S 50) 0.4936338025859387414532682397988025642247 (ε))
+
+(check-= (Fresnel-C  1) 0.779893400376822829474206413652690136631  (ε))
+(check-= (Fresnel-C  2) 0.4882534060753407545002235033572610376925 (ε))
+(check-= (Fresnel-C  5) 0.5636311887040122311021074044130139830057 (ε))
+(check-= (Fresnel-C 10) 0.4998986942055157236141518477355803595637 (ε))
+(check-= (Fresnel-C 20) 0.4999873349723443881870062136976602164476 (ε))
+(check-= (Fresnel-C 50) 0.4999991894307279679558101639817919070024 (ε))
+
