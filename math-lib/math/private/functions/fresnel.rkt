@@ -11,22 +11,12 @@ or regular
 floating point implementation:
   adaptation of the algorithm in the fresnl.c file from Cephes,
   but with the limit for the rational powerseries lowered to x<1.5625 (coming from 2.5625)
-  above x>1.6 the error becomes too big (~1e-8 x=2.5)
+  above x>1.6 the error becomes too big (~1e-8 x~2.5)
 Bigfloat implementation:
   adaptation of powerseries as shown on wikipedia
 
-would like to extend to the complex plane
-S(xi)=-S(x)i
-C(xi)=C(x)i
+would like to extend this together with erf to the complex plane
 
-S((1+i)/√2 × x)=(-1+i)/√2 × S(x)
-S((-1+i)/√2 × x)=(1+i)/√2 × S(x)
-
-checking also possible via erf((1+i)/√2 × z)
-
-TODO:
-put tests in math-test/math/tests/function-tests.rkt
-update documentation
 |#
 
 (require "../../base.rkt"
