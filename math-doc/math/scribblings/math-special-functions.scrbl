@@ -393,7 +393,13 @@ have very dissimilar magnitudes (e.g. @racket[1e-16] and @racket[1e16]), it exhi
               @defproc[(Fresnel-C [x Real]) Real]
               @defproc[(Fresnel-RS [x Real]) Real]
               @defproc[(Fresnel-RC [x Real]) Real])]{
-Compute the @hyperlink["https://en.wikipedia.org/wiki/Fresnel_integral"]{natural Fresnel integrals and the regular}, respectively.
+Compute the @hyperlink["https://en.wikipedia.org/wiki/Fresnel_integral"]{Fresnel integrals}. Where
+ @itemlist[
+ @item{@racket[(Fresnel-S x)] calculates ∫sin(πt²/2) |0->x}
+ @item{@racket[(Fresnel-C x)] calculates ∫cos(πt²/2) |0->x}
+ @item{@racket[(Fresnel-RS x)] calculates ∫sin(t²) |0->x}
+ @item{@racket[(Fresnel-RC x)] calculates ∫cos(t²) |0->x}]
+The first two are sometimes also referred to as the natural Fresnel integrals.
 
 @examples[#:eval untyped-eval
                  (plot (list (function Fresnel-RS 0 5 #:label "Fresnel-RS(x)")
