@@ -389,6 +389,29 @@ have very dissimilar magnitudes (e.g. @racket[1e-16] and @racket[1e16]), it exhi
 @tech{catastrophic cancellation}. We are working on it.
 }
 
+@deftogether[(@defproc[(Fresnel-S [x Real]) Real]
+              @defproc[(Fresnel-C [x Real]) Real]
+              @defproc[(Fresnel-RS [x Real]) Real]
+              @defproc[(Fresnel-RC [x Real]) Real])]{
+Compute the @hyperlink["https://en.wikipedia.org/wiki/Fresnel_integral"]{Fresnel integrals}. Where
+ @itemlist[
+ @item{@racket[(Fresnel-S x)] calculates ∫sin(πt²/2) |0->x}
+ @item{@racket[(Fresnel-C x)] calculates ∫cos(πt²/2) |0->x}
+ @item{@racket[(Fresnel-RS x)] calculates ∫sin(t²) |0->x}
+ @item{@racket[(Fresnel-RC x)] calculates ∫cos(t²) |0->x}]
+The first two are sometimes also referred to as the natural Fresnel integrals.
+
+@examples[#:eval untyped-eval
+                 (plot (list (function Fresnel-RS 0 5 #:label "Fresnel-RS(x)")
+                             (function Fresnel-RC 0 5 #:color 2 #:label "Fresnel-RC(x)")))
+                 (plot (parametric (λ (t) (list (Fresnel-C t) (Fresnel-S t))) -5 5 #:label "Euler spiral"))
+                 (Fresnel-RS 1)
+                 (* (sqrt (/ pi 2)) (Fresnel-S (* (sqrt (/ 2 pi)) 1)))]
+
+Spot-checks within the region 0<=x<=150 sugest that the error is no greater than 1e-14 everywhere that has been tested, and usually is lower than 2e-15.
+}
+
+
 @section[#:tag "flonum-functions"]{Flonum Functions}
 
 @defproc[(flgamma [x Flonum]) Flonum]{}
@@ -407,7 +430,9 @@ have very dissimilar magnitudes (e.g. @racket[1e-16] and @racket[1e16]), it exhi
 @defproc[(flgamma-inc [k Flonum] [x Flonum] [upper? Any] [regularized? Any]) Flonum]{}
 @defproc[(fllog-gamma-inc [k Flonum] [x Flonum] [upper? Any] [regularized? Any]) Flonum]{}
 @defproc[(flbeta-inc [a Flonum] [b Flonum] [x Flonum] [upper? Any] [regularized? Any]) Flonum]{}
-@defproc[(fllog-beta-inc [a Flonum] [b Flonum] [x Flonum] [upper? Any] [regularized? Any]) Flonum]{
+@defproc[(fllog-beta-inc [a Flonum] [b Flonum] [x Flonum] [upper? Any] [regularized? Any]) Flonum]
+@defproc[(flFresnel-S [x Flonum]) Flonum]
+@defproc[(flFresnel-C [x Flonum]) Flonum]{
 Flonum versions of the above functions. These return @racket[+nan.0] instead of raising errors and do
 not have optional arguments. They can be a little faster to apply because they check fewer special
 cases.
