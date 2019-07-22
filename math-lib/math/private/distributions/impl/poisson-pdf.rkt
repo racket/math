@@ -114,7 +114,13 @@
               ((fl- k l) . fl< . (fl* 40.0 (flsqrt l)))
               ((fl- l k) . fl< . (fl* 29.0 (flsqrt l))))
          ;; Error <= 1 ulp when flpoisson-pdf error is just a few ulps
-         (fllog (flpoisson-pdf l k))]
+         (define answ (fllog (flpoisson-pdf l k)))
+         (cond
+           [(fl< answ -700.0)
+            (define bns (flpoisson-log-pdf-logassymp l k))
+            ;bail out -> rounding errors to big in this region
+            bns]
+           [else answ])]
         [(and (or (l . fl> . 1e18) (k . fl> . 1e18))
               (or ((fl- k l) . fl> . (fl* 0.5 k))
                   ((fl- l k) . fl> . (fl* 0.5 l))))
@@ -122,10 +128,15 @@
          (- (fl* k (fl+ 1.0 (fllog (fl/ l k)))) (fllog k) l)]
         [else
          ;; Log version of the above; relative error here also climbs with distance from 0
-         (define-values (l-k l-k-lo) (fast-fl-/error l k))
-         (define-values (l/k l/k-lo) (fast-fl//error l k))
-         (define div (get-div l k))
-         (- (fl* div (fllog (fl* (flexpt+ l/k l/k-lo (fl/ k div))
-                                 (flexp (fl/ (- l-k) div)))))
-            (flstirling k)
-            (fllog (* (flsqrt k) (flsqrt (fl* 2.0 pi)) (flexp l-k-lo))))]))
+         (flpoisson-log-pdf-logassymp l k)]))
+
+(: flpoisson-log-pdf-logassymp (Flonum Flonum -> Flonum))
+(define (flpoisson-log-pdf-logassymp l k)
+  ;; Log version of the above; relative error here also climbs with distance from 0
+  (define-values (l-k l-k-lo) (fast-fl-/error l k))
+  (define-values (l/k l/k-lo) (fast-fl//error l k))
+  (define div (get-div l k))
+  (- (fl* div (fllog (fl* (flexpt+ l/k l/k-lo (fl/ k div))
+                          (flexp (fl/ (- l-k) div)))))
+     (flstirling k)
+     (fllog (* (flsqrt k) (flsqrt (fl* 2.0 pi)) (flexp l-k-lo)))))
