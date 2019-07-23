@@ -112,7 +112,7 @@
          (- (fl* k (fllog l)) (fllog k) (fllog-gamma k) l)]
         [(and (k . fl> . 2.0) (l . fl> . 2.0)
               ((fl- k l) . fl< . (fl* 40.0 (flsqrt l)))
-              ((fl- l k) . fl< . (fl* 29.0 (flsqrt l))))
+              ((fl- l k) . fl< . (fl* 38.0 (flsqrt l))))
          ;; Error <= 1 ulp when flpoisson-pdf error is just a few ulps
          (define answ (fllog (flpoisson-pdf l k)))
          (cond
