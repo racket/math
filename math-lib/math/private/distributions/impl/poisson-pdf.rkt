@@ -116,10 +116,8 @@
          ;; Error <= 1 ulp when flpoisson-pdf error is just a few ulps
          (define answ (fllog (flpoisson-pdf l k)))
          (cond
-           [(fl< answ -700.0)
-            (define bns (flpoisson-log-pdf-logassymp l k))
-            ;bail out -> rounding errors to big in this region
-            bns]
+           ;bail out -> rounding errors to big in this region
+           [(fl< answ -700.0) (flpoisson-log-pdf-logassymp l k)]
            [else answ])]
         [(and (or (l . fl> . 1e18) (k . fl> . 1e18))
               (or ((fl- k l) . fl> . (fl* 0.5 k))
