@@ -3,15 +3,18 @@
 (require typed/rackunit)
 
 ; "quadratic.rkt"
+(check-equal? (quadratic-complex-solutions 1 0 -4) '(-2 2))
+(check-equal? (quadratic-complex-solutions 1 0 +4) '(0-2i 0+2i))
+(check-equal? (quadratic-complex-solutions 1 0 0)  '(0 0))
 (check-equal? (quadratic-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-solutions 1 0 +4) '())
-(check-equal? (quadratic-solutions 1 0 0)  '(0))
+(check-equal? (quadratic-solutions 1 0 0)  '(0 0))
 (check-equal? (quadratic-integer-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-integer-solutions 1 0 +4) '())
-(check-equal? (quadratic-integer-solutions 1 0 0)  '(0))
+(check-equal? (quadratic-integer-solutions 1 0 0)  '(0 0))
 (check-equal? (quadratic-natural-solutions 1 0 -4) '(2))
 (check-equal? (quadratic-natural-solutions 1 0 +4) '())
-(check-equal? (quadratic-natural-solutions 1 0 0)  '(0))
+(check-equal? (quadratic-natural-solutions 1 0 0)  '(0 0))
 
 ; "eulerian-number.rkt"
 (check-equal? (map (λ: ([x : Natural]) (eulerian-number 5 x)) '(0 1 2 3 4))
