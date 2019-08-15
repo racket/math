@@ -24,11 +24,10 @@
                      (/ (+ (- b) sqrt-d) 2a))]
       ; use the standard formula, unless -b and sqrt are almost equal
       [#t ; (> (magnitude -b-sqrt-d) 0.001)
-       (displayln d)
        (list (/ -b-sqrt-d        2a)
              (/ (+ (- b) sqrt-d) 2a))]
       [else
-       ; Note: Disabled foe now.
+       ; Note: Disabled for now.
        ;       There are cases where only one root needs to
        ;       use Muller's formula. But which one is it?
        ; Muller's formula:
@@ -36,9 +35,7 @@
        (let* ([sign (if (>= 0 (real-part (* (conjugate b) sqrt-d)))
                         1 -1)]
               [q    (/ (+ b (* sign sqrt-d)) -2)])
-         (append (list (/ q a) (/ c q))
-                 (list (/ (- (- b) sqrt-d) 2a)
-                       (/ (+ (- b) sqrt-d) 2a))))])))
+         (list (/ q a) (/ c q)))])))
 
 
 (: quadratic-solutions : Real Real Real -> (Listof Real))
