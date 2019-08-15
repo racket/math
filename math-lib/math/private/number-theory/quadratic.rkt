@@ -1,6 +1,7 @@
 #lang typed/racket/base
 
 (require racket/list
+         (only-in racket/math conjugate)
          "types.rkt")
 
 (provide quadratic-complex-solutions
