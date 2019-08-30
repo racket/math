@@ -823,6 +823,8 @@ This function allows complex coeffecients.
                       (complex-quadratic-solutions 1 0 1)
                       (complex-quadratic-solutions 1 0 (sqrt -1))
                       (complex-quadratic-solutions 1 0 1)]
+
+@history[#:added "1.1"]
 }
 
 

@@ -18,3 +18,5 @@
 (define pkg-desc "Math library")
 
 (define pkg-authors '(ntoronto))
+
+(define version "1.1")
