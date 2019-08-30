@@ -217,6 +217,8 @@
   #:property prop:equal+hash (list bigfloat-equal? bigfloat-hash bigfloat-hash)
   #:property prop:serializable bigfloat-serialize-info)
 
+(define sizeof-mpfr (ctype-sizeof _mpfr))
+
 ;; ===================================================================================================
 ;; Foreign functions
 
@@ -241,7 +243,7 @@
                 (λ () (get-mpfr-fun 'mpfr_get_z_exp
                                     (_fun _mpz-pointer _mpfr-pointer -> _exp_t)))))
 (define mpfr-get-str
-  (get-mpfr-fun 'mpfr_get_str (_fun _pointer (_cpointer _exp_t) _int _ulong _mpfr-pointer _rnd_t
+  (get-mpfr-fun 'mpfr_get_str (_fun _pointer _pointer #| of _exp_t |# _int _ulong _mpfr-pointer _rnd_t
                                     -> _pointer)))
 
 ;; Conversions from other types to _mpfr
@@ -319,14 +321,22 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
 (define (mpfr-prec->limbs prec)
   (+ 1 (quotient (- prec 1) gmp-limb-bits)))
 
+(define sizeof-mpfr-prefix (+ sizeof-mpfr_size_limb_t sizeof-mpfr))
+  
 ;; mpfr-malloc-size : integer -> integer
-;; Reimplementation of MPFR_MALLOC_SIZE
+;; Reimplementation of MPFR_MALLOC_SIZE, but with space for `_mpfr`
 (define (mpfr-malloc-size n)
-  (+ sizeof-mpfr_size_limb_t (* sizeof-mp_limb_t n)))
+  (+ sizeof-mpfr-prefix (* sizeof-mp_limb_t n)))
 
 ;; Reimplementation of MPFR_EXP_INVALID
 (define mpfr-exp-invalid
   (arithmetic-shift 1 (- (quotient (* gmp-limb-bits sizeof-exp_t) sizeof-mp_limb_t) 2)))
+
+(define mpfr-exp-nan
+  (let ()
+    (define x (make-mpfr 0 0 0 #f))
+    (mpfr-set-nan x)
+    (mpfr-exp x)))
 
 ;; mpfr-set-alloc-size! : pointer integer -> void
 ;; Reimplementation of MPFR_SET_ALLOC_SIZE
@@ -337,21 +347,22 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
 ;; Creates a new _mpfr instance and initializes it, mimicking `mpfr-init2'.
 (define (new-mpfr prec)
   (define n (mpfr-prec->limbs prec))
-  ;; Allocate d so it won't be traced (atomic) or moved (interior)
-  (define orig-d (malloc (mpfr-malloc-size n) 'atomic-interior))
+  ;; Allocate mem so it won't be traced (atomic) or moved (interior)
+  (define mem (malloc (mpfr-malloc-size n) 'atomic-interior))
   ;; An _mpfr object points at the second element of its limbs array, and uses the first element
   ;; to store its size, so shift the pointer
-  (define d (ptr-add orig-d 1 _mpfr_size_limb_t))
+  (define d (ptr-add mem sizeof-mpfr-prefix))
   ;; Setting the size after shifting the pointer because that's what `mpfr-init2' does...
   (mpfr-set-alloc-size! d n)
   ;; Make an _mpfr object managed by Racket
-  (define x (make-mpfr prec 0 mpfr-exp-invalid d))
-  ;; Use a finalizer to keep a reference to orig-d as long as x is alive (equiv. to tracing x, if
-  ;; the value of d pointed at a Racket object)
-  (register-finalizer x (λ (x) orig-d))
-  ;; Set +nan.bf because that's what `mpfr-init2' does...
-  (mpfr-set-nan x)
-  x)
+  (define x mem)
+  (cpointer-push-tag! x mpfr-tag)
+  (set-mpfr-prec! x prec)
+  (set-mpfr-sign! x 0)
+  (set-mpfr-exp! x mpfr-exp-nan) ; what `mpfr-init2' does
+  (set-mpfr-d! x d)
+  ;; Cast to add struct wrapper:
+  (cast x _pointer _mpfr-pointer))
 
 ;; ===================================================================================================
 ;; Accessors
@@ -492,7 +503,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
 ;; String conversions
 
 (define (mpfr-get-string x base rnd)
-  (define exp-ptr (cast (malloc _exp_t 'atomic-interior) _pointer (_cpointer _exp_t)))
+  (define exp-ptr (malloc _exp_t))
   (define bs (mpfr-get-str #f exp-ptr base 0 x rnd))
   (define exp (ptr-ref exp-ptr _exp_t))
   (define str (bytes->string/utf-8 (cast bs _pointer _bytes)))
@@ -759,7 +770,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
 
 (define (bflog-gamma/sign x)
   (define y (new-mpfr (bf-precision)))
-  (define s (malloc _int 'atomic-interior))
+  (define s (malloc _int))
   (mpfr-lgamma y s x (bf-rounding-mode))
   (values y (ptr-ref s _int)))
 
