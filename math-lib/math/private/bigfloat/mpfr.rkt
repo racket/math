@@ -361,8 +361,8 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
   (set-mpfr-sign! x 0)
   (set-mpfr-exp! x mpfr-exp-nan) ; what `mpfr-init2' does
   (set-mpfr-d! x d)
-  ;; Cast to add struct wrapper:
-  (cast x _pointer _mpfr-pointer))
+  ;; Add struct wrapper:
+  (make-wrap-mpfr x))
 
 ;; ===================================================================================================
 ;; Accessors
