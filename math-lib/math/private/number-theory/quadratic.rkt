@@ -37,7 +37,6 @@
               [q    (/ (+ b (* sign sqrt-d)) -2)])
          (list (/ q a) (/ c q)))])))
 
-
 (: quadratic-solutions : Real Real Real -> (Listof Real))
 (define (quadratic-solutions a b c)
   ; return list of solutions to a a x^2 + b x + c = 0
@@ -47,8 +46,11 @@
       [(= d 0) (list (/ b (* -2 a)))]
       [else
        (let ([sqrt-d (sqrt d)])
-         (list (/ (- (- b) sqrt-d) (* 2 a))
-               (/ (+ (- b) sqrt-d) (* 2 a))))])))
+         (if (>= b 0)
+             (list (/ (* 2 c) (- (- b) sqrt-d))
+                   (/ (- (- b) sqrt-d) (* 2 a)))
+             (list (/ (* 2 c) (+ (- b) sqrt-d))
+                   (/ (+ (- b) sqrt-d) (* 2 a)))))])))
 
 (: quadratic-integer-solutions : Real Real Real -> (Listof Integer))
 (define (quadratic-integer-solutions a b c)
