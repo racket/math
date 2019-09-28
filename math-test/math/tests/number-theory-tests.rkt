@@ -9,6 +9,8 @@
 (check-equal? (quadratic-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-solutions 1 0 +4) '())
 (check-equal? (quadratic-solutions 1 0 0)  '(0))
+(check-equal? (quadratic-solutions 1 1e8 1) '(-1e8 -1e-8))
+(check-equal? (quadratic-solutions 1e-8 1 1e-8) '(-99999999.99999999 -1.0000000000000002e-08))
 (check-equal? (quadratic-integer-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-integer-solutions 1 0 +4) '())
 (check-equal? (quadratic-integer-solutions 1 0 0)  '(0))

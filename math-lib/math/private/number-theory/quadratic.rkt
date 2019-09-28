@@ -47,10 +47,10 @@
       [else
        (let ([sqrt-d (sqrt d)])
          (if (>= b 0)
-             (list (/ (* 2 c) (- (- b) sqrt-d))
-                   (/ (- (- b) sqrt-d) (* 2 a)))
-             (list (/ (* 2 c) (+ (- b) sqrt-d))
-                   (/ (+ (- b) sqrt-d) (* 2 a)))))])))
+             (list (/ (- (- b) sqrt-d) (* 2 a))
+                   (/ (* 2 c) (- (- b) sqrt-d)))
+             (list (/ (+ (- b) sqrt-d) (* 2 a))
+                   (/ (* 2 c) (+ (- b) sqrt-d)))))])))
 
 (: quadratic-integer-solutions : Real Real Real -> (Listof Integer))
 (define (quadratic-integer-solutions a b c)
