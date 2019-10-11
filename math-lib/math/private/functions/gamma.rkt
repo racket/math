@@ -272,13 +272,38 @@ Approximations:
                   [(and (x . fl> . -4.5) (x . fl< . 4.5))  (flgamma-taylor x)]
                   [else  (flgamma-lanczos x)])))]))
 
+(define √2π 2.5066282746310005024157652848110)
+(: complex-gamma (Number -> Number))
+(define (complex-gamma z+1)
+  (define neg? (< (real-part z+1)0))
+  (define z (- (if neg? (- z+1) z+1) 1))
+  (cond
+    [(or (= z 1)(= z 0))1]
+    [else
+     (define zh (+ z 0.5))
+     (define zgh (+ zh lanczos-complex-g))
+     (define zp (expt zgh (* 0.5 zh)))
+
+     (define ans
+       (* zp (exp (- zgh)) zp
+          √2π (+ (car lanczos-complex-c)
+                 (for/sum : Number ([a (in-list (cdr lanczos-complex-c))]
+                                    [i (in-naturals 1)])
+                   (/ a (+ z i))))))
+     (if neg?
+         (- (/ pi (* ans z+1 (sin (* pi z+1)))))
+         ans)]))
+
 (: gamma (case-> (One -> One)
                  (Integer -> Positive-Integer)
                  (Float -> Float)
-                 (Real -> (U Positive-Integer Flonum))))
-(define (gamma x)
+                 (Real -> (U Positive-Integer Flonum))
+                 (Number -> Number)))
+(define (gamma z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
   (cond [(double-flonum? x)  (flgamma x)]
         [(exact-integer? x)
          (cond [(x . > . 0)  (factorial (- x 1))]
                [else  (raise-argument-error 'gamma "Real, not Zero or Negative-Integer" x)])]
-        [else  (flgamma (fl x))]))
+        [(real? x)  (flgamma (fl x))]
+        [else (complex-gamma z)]))

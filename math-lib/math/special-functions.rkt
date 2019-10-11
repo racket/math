@@ -9,7 +9,7 @@
          (except-in "private/functions/lambert.rkt" lambert)
          (except-in "private/functions/zeta.rkt" eta zeta)
          (except-in "private/functions/hurwitz-zeta.rkt" hurwitz-zeta)
-         "private/functions/psi.rkt"
+         (except-in "private/functions/psi.rkt" psi0)
          "private/functions/incomplete-gamma.rkt"
          "private/functions/incomplete-beta.rkt"
          "private/functions/stirling-error.rkt"
@@ -17,11 +17,15 @@
 
 (require/untyped-contract
  "private/functions/gamma.rkt"
- [gamma  (Real -> Real)])
+ [gamma  (Number -> Number)])
 
 (require/untyped-contract
  "private/functions/log-gamma.rkt"
- [log-gamma  (Real -> Real)])
+ [log-gamma  (Number -> Number)])
+
+(require/untyped-contract
+ "private/functions/psi.rkt"
+ [psi0  (Number -> Number)])
 
 (require/untyped-contract
  "private/functions/beta.rkt"
@@ -61,6 +65,7 @@
           "private/functions/fresnel.rkt")
          gamma
          log-gamma
+         psi0
          beta log-beta
          erf erfc
          lambert

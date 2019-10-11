@@ -6,7 +6,8 @@
          "../number-theory/bernoulli.rkt"
          "gamma.rkt"
          "hurwitz-zeta.rkt"
-         "tan-diff.rkt")
+         "tan-diff.rkt"
+         "lanczos.rkt")
 
 (provide flpsi0 flpsi psi0 psi)
 
@@ -208,6 +209,29 @@
         [(x . = . +inf.0)  +inf.0]
         [else  +nan.0]))
 
+(: complex-psi0 (Number -> Number))
+(define (complex-psi0 z*)
+  (define neg? (< (real-part z*) 0.5))
+  (define z (if neg? (- 1 z*) z*))
+
+  (define-values (n d)
+    (for/fold : (Values Number Number)
+      ([n : Number 0][d : Number 0])
+      ([c (in-list (reverse (cdr lanczos-complex-c)))]
+       [k (in-range (length lanczos-complex-c) -1 -1)])
+      (define dz (/ 1 (+ z k -2)))
+      (define dd (* c dz))
+      (values (- n (* dd dz)) (+ d dd))))
+
+  (define gg (+ z lanczos-complex-g -0.5))
+
+  (define ans (+ (log gg) (- (/ n (+ d (car lanczos-complex-c)))
+                             (/ lanczos-complex-g gg))))
+  
+  (if neg?
+      (- ans (/ pi (tan (* pi z*))))
+      ans))
+
 (define pi.128 267257146016241686964920093290467695825/85070591730234615865843651857942052864)
 
 (: flexppi (Flonum -> Flonum))
@@ -232,13 +256,16 @@
          (fl- (fl* sgn (flpsi m (fl- 1.0 x))) t)]
         [else  +nan.0]))
 
-(: psi0 (Real -> Flonum))
-(define (psi0 x)
+(: psi0 (case-> (Real -> Flonum)
+                (Number -> Number)))
+(define (psi0 z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
   (cond [(flonum? x)  (flpsi0 x)]
         [(single-flonum? x)  (flpsi0 (fl x))]
         [(and (integer? x) (x . <= . 0))
          (raise-argument-error 'psi0 "Real, not Zero or Negative-Integer" x)]
-        [else  (flpsi0 (fl x))]))
+        [(real? x)  (flpsi0 (fl x))]
+        [else (complex-psi0 z)]))
 
 (: psi (Integer Real -> Flonum))
 (define (psi m x)
