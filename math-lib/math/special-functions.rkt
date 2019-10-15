@@ -13,7 +13,7 @@
          "private/functions/incomplete-gamma.rkt"
          "private/functions/incomplete-beta.rkt"
          "private/functions/stirling-error.rkt"
-         "private/functions/fresnel.rkt")
+         (except-in "private/functions/fresnel.rkt" Fresnel-S Fresnel-RS Fresnel-C Fresnel-RC))
 
 (require/untyped-contract
  "private/functions/gamma.rkt"
@@ -34,8 +34,15 @@
 
 (require/untyped-contract
  "private/functions/erf.rkt"
- [erf   (Real -> Real)]
+ [erf   (Number -> Number)]
  [erfc  (Real -> Real)])
+(require/untyped-contract
+ "private/functions/fresnel.rkt"
+ [Fresnel-S  (Number -> Number)]
+ [Fresnel-RS (Number -> Number)]
+ [Fresnel-C  (Number -> Number)]
+ [Fresnel-RC (Number -> Number)])
+
 
 (require/untyped-contract
  "private/functions/lambert.rkt"
@@ -71,4 +78,5 @@
          lambert
          eta zeta
          hurwitz-zeta
-         )
+         Fresnel-S Fresnel-RS
+         Fresnel-C Fresnel-RC)
