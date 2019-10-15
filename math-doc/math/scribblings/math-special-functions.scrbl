@@ -19,7 +19,7 @@
 The term ``special function'' has no formal definition. However, for the purposes of the
 @racketmodname[math] library, a @deftech{special function} is one that is not @tech{elementary}.
 
-The special functions are split into three groups: @secref{complex-functions}, @secref{real-functions} and
+The special functions are split into two groups: @secref{complex-real-functions} and
 @secref{flonum-functions}. Functions that accept real arguments are usually defined
 in terms of their flonum counterparts, but are different in two crucial ways:
 @itemlist[
@@ -56,7 +56,7 @@ The most general type @racket[Real -> (U Zero Flonum)] is used to generate
 @racket[lambert]'s contract when it is used in untyped code. Except for this discussion,
 this the only type documented for @racket[lambert].
 
-@section[#:tag "complex-functions"]{Complex Functions}
+@section[#:tag "complex-real-functions"]{Complex and real Functions}
 
 @defproc[(gamma [x Number]) Number]{
 Computes the @hyperlink["http://en.wikipedia.org/wiki/Gamma_function"]{gamma function},
@@ -132,8 +132,6 @@ error.
 If you need low relative error near negative roots, use @racket[bfpsi0].
 }
 
-@section[#:tag "real-functions"]{Real Functions}
-
 @defproc[(psi [m Integer] [x Real]) Flonum]{
 Computes a @hyperlink["http://en.wikipedia.org/wiki/Polygamma_function"]{polygamma function},
 or the @racket[m]th logarithmic derivative of the gamma function. The order @racket[m] must be
@@ -154,7 +152,7 @@ near negative roots. Near negative roots, relative error is apparently unbounded
 is low.
 }
 
-@deftogether[(@defproc[(erf [x Real]) Real]
+@deftogether[(@defproc[(erf [x Number]) Number]
               @defproc[(erfc [x Real]) Real])]{
 Compute the @hyperlink["http://en.wikipedia.org/wiki/Error_function"]{error function and
 complementary error function}, respectively. The only exact cases are @racket[(erf 0) = 0]
@@ -167,7 +165,8 @@ and @racket[(erfc 0) = 1].
                  (erf 1)
                  (- 1 (erfc 1))
                  (erf -1)
-                 (- (erfc 1) 1)]
+                 (- (erfc 1) 1)
+                 (erf 1+i)]
 
 Mathematically, erfc(@italic{x}) = 1 - erf(@italic{x}), but having separate implementations
 can help maintain accuracy. To compute an expression containing erf, use @racket[erf] for
@@ -185,8 +184,8 @@ manipulate @racket[(- 1.0 (erfc x))] and its surrounding expressions to avoid th
                     (flulp-error (fllog1p (- (erfc x))) log-erf-x)]
 For negative @racket[x] away from @racket[0.0], do the same with @racket[(- (erfc (- x)) 1.0)].
 
-For @racket[erf], error is no greater than 2 @tech{ulps} everywhere that has been tested, and
-is almost always no greater than 1. For @racket[erfc], observed error is no greater than 4 ulps,
+For @racket[erf], on the real line the error is no greater than 2 @tech{ulps} everywhere that has been tested, and
+is almost always no greater than 1. In the complex plane the relative error is smaller 1e-12. For @racket[erfc], observed error is no greater than 4 ulps,
 and is usually no greater than 2.
 }
 
@@ -394,10 +393,10 @@ have very dissimilar magnitudes (e.g. @racket[1e-16] and @racket[1e16]), it exhi
 @tech{catastrophic cancellation}. We are working on it.
 }
 
-@deftogether[(@defproc[(Fresnel-S [x Real]) Real]
-              @defproc[(Fresnel-C [x Real]) Real]
-              @defproc[(Fresnel-RS [x Real]) Real]
-              @defproc[(Fresnel-RC [x Real]) Real])]{
+@deftogether[(@defproc[(Fresnel-S [x Number]) Number]
+              @defproc[(Fresnel-C [x Number]) Number]
+              @defproc[(Fresnel-RS [x Number]) Number]
+              @defproc[(Fresnel-RC [x Number]) Number])]{
 Compute the @hyperlink["https://en.wikipedia.org/wiki/Fresnel_integral"]{Fresnel integrals}. Where
  @itemlist[
  @item{@racket[(Fresnel-S x)] calculates ∫sin(πt²/2) |0->x}
@@ -413,7 +412,9 @@ The first two are sometimes also referred to as the natural Fresnel integrals.
                  (Fresnel-RS 1)
                  (* (sqrt (/ pi 2)) (Fresnel-S (* (sqrt (/ 2 pi)) 1)))]
 
-Spot-checks within the region 0<=x<=150 sugest that the error is no greater than 1e-14 everywhere that has been tested, and usually is lower than 2e-15.
+Spot-checks on the real line within the region 0<=x<=150 sugest that the error is no greater than 1e-14
+everywhere that has been tested, and usually is lower than 2e-15. In the complex plane the relative error
+is smaller than 1e-12.
 }
 
 

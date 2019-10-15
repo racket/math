@@ -20,10 +20,11 @@ would like to extend this together with erf to the complex plane
 |#
 
 (require "../../base.rkt"
-         "../../flonum.rkt")
+         "../../flonum.rkt"
+         "erf.rkt")
 
-(provide flFresnel-S Fresnel-S Fresnel-RS
-         flFresnel-C Fresnel-C Fresnel-RC)
+(provide flFresnel-S complex-Fresnel-S Fresnel-S Fresnel-RS
+         flFresnel-C complex-Fresnel-C Fresnel-C Fresnel-RC)
 
 ;------------------------------
 ;polinomials for the rational assymptotic aproximation for S & C
@@ -76,13 +77,15 @@ would like to extend this together with erf to the complex plane
 
 ;------------------------------
 ;polinomials for the rational powerseries aproximation for S
-(define sn (make-flpolyfun ( 3.18016297876567817986E11
+(define sn/d
+  (make-quotient-flpolyfun ( 3.18016297876567817986E11
                             -4.42979518059697779103E10
                              2.54890880573376359104E9
                             -6.29741486205862506537E7
                              7.08840045257738576863E5
-                            -2.99181919401019853726E3)))
-(define sd (make-flpolyfun ( 6.07366389490084639049E11
+                            -2.99181919401019853726E3
+                             0.0)
+                           ( 6.07366389490084639049E11
                              2.24411795645340920940E10
                              4.19320245898111231129E8
                              5.17343888770096400730E6
@@ -97,7 +100,7 @@ would like to extend this together with erf to the complex plane
     [(fl< x 1.5625)
      (define X2 (fl* x x))
      (define X4 (fl* X2 X2))
-     (fl* (fl* X2 x) (fl/ (sn X4)(sd X4)))]
+     (fl* (fl* X2 x) (sn/d X4))]
     [else
      (define t (fl* pi (fl* x x)))
      (define t/2 (fl/ t 2.0))
@@ -107,15 +110,23 @@ would like to extend this together with erf to the complex plane
      (fl- 0.5 (fl/ (fl+ (fl* f (flcos t/2))(fl* g (flsin t/2)))
                    (fl* pi x)))]))
 
+(define (complex-Fresnel-S [z : Number]) : Number
+  (define z* (* z (sqrt (/ pi 4))))
+  (* (/ 1+i 4)
+     (-       (complex-erf (* z* 1+i))
+        (* +i (complex-erf (* z* 1-i))))))
+
 ;------------------------------
 ;polinomials for the rational powerseries aproximation for C
-(define cn (make-flpolyfun ( 9.99999999999999998822E-1
+(define cn/d
+  (make-quotient-flpolyfun ( 9.99999999999999998822E-1
                             -2.05525900955013891793E-1
                              1.88843319396703850064E-2
                             -6.45191435683965050962E-4
                              9.50428062829859605134E-6
-                            -4.98843114573573548651E-8)))
-(define cd (make-flpolyfun ( 1.00000000000000000118E0
+                            -4.98843114573573548651E-8
+                             0.0)
+                           ( 1.00000000000000000118E0
                              4.12142090722199792936E-2
                              8.68029542941784300606E-4
                              1.22262789024179030997E-5
@@ -130,7 +141,7 @@ would like to extend this together with erf to the complex plane
     [(fl< x 1.5625)
      (define X2 (fl* x x))
      (define X4 (fl* X2 X2))
-     (fl* x (fl/ (cn X4)(cd X4)))]
+     (fl* x (cn/d X4))]
     [else
      (define t (fl* pi (fl* x x)))
      (define t/2 (fl/ t 2.0))
@@ -140,13 +151,57 @@ would like to extend this together with erf to the complex plane
      (fl+ 0.5 (fl/ (fl- (fl* f (flsin t/2))(fl* g (flcos t/2)))
                    (fl* pi x)))]))
 
+(define (complex-Fresnel-C [z : Number]) : Number
+  (define z* (* z (sqrt (/ pi 4))))
+  (* (/ 1-i 4)
+     (+       (complex-erf (* z* 1+i))
+        (* +i (complex-erf (* z* 1-i))))))
+
 ;------------------------------
-(define (Fresnel-S [x : Real]) : Real (flFresnel-S (fl x)))
-(define (Fresnel-C [x : Real]) : Real (flFresnel-C (fl x)))
-(define (Fresnel-RS [x : Real]) : Real
-  (* (flsqrt (fl/ pi 2.0)) (flFresnel-S (* (flsqrt (fl/ 2.0 pi)) (fl x)))))
-(define (Fresnel-RC [x : Real]) : Real
-  (* (flsqrt (fl/ pi 2.0)) (flFresnel-C (* (flsqrt (fl/ 2.0 pi)) (fl x)))))
+(: Fresnel-S (case-> (Zero -> Zero)
+                     (Flonum -> Flonum)
+                     (Real -> (U Zero Flonum))
+                     (Number -> Number)))
+(define (Fresnel-S z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
+  (cond
+    [(eqv? z 0) 0]
+    [(flonum? x)(flFresnel-S x)]
+    [(real? x)(flFresnel-S (fl x))]
+    [else (complex-Fresnel-S z)]))
+(: Fresnel-C (case-> (Zero -> Zero)
+                     (Flonum -> Flonum)
+                     (Real -> (U Zero Flonum))
+                     (Number -> Number)))
+(define (Fresnel-C z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
+  (cond
+    [(eqv? z 0) 0]
+    [(flonum? x)(flFresnel-C x)]
+    [(real? x)(flFresnel-C (fl x))]
+    [else (complex-Fresnel-C z)]))
+(: Fresnel-RS (case-> (Zero -> Zero)
+                      (Flonum -> Flonum)
+                      (Real -> (U Zero Flonum))
+                      (Number -> Number)))
+(define (Fresnel-RS z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
+  (cond
+    [(eqv? z 0) 0]
+    [(flonum? x)(* (flsqrt (fl/ pi 2.0))(flFresnel-S (* (flsqrt (fl/ 2.0 pi)) x)))]
+    [(real? x)  (* (flsqrt (fl/ pi 2.0))(flFresnel-S (* (flsqrt (fl/ 2.0 pi)) (fl x))))]
+    [else (* (sqrt (/ pi 2))(complex-Fresnel-S (* (sqrt (/ 2 pi)) z)))]))
+(: Fresnel-RC (case-> (Zero -> Zero)
+                      (Flonum -> Flonum)
+                      (Real -> (U Zero Flonum))
+                      (Number -> Number)))
+(define (Fresnel-RC z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
+  (cond
+    [(eqv? z 0) 0]
+    [(flonum? x)(* (flsqrt (fl/ pi 2.0))(flFresnel-C (* (flsqrt (fl/ 2.0 pi)) x)))]
+    [(real? x)  (* (flsqrt (fl/ pi 2.0))(flFresnel-C (* (flsqrt (fl/ 2.0 pi)) (fl x))))]
+    [else (* (sqrt (/ pi 2))(complex-Fresnel-C (* (sqrt (/ 2 pi)) z)))]))
 
 ;------------------------------
 (module* bfFresnel #f
@@ -209,18 +264,18 @@ would like to extend this together with erf to the complex plane
          (bfFresnel-RC (bf* (bfsqrt (bf/ pi.bf (bf 2))) x) maxp)))
     )
 
-(module* test racket/base
+#;(module* test #f
     ;some functions to check the function.
     ;commented out, because (partly) put in function-tests from math-test
   (require math/bigfloat
-           rackunit)
+           typed/rackunit)
   (require (submod "..")
            (submod ".." bfFresnel))
   
-  (define (test a #:ε [ε 1e-15])
-    (check-= (Fresnel-S a)  (bigfloat->flonum (bfFresnel-S (bf a)))  ε (format "(Fresnel-S ~a)" a))
+  (define (test [a : Flonum] #:ε [ε : Flonum 1e-15])
+    (check-= (Fresnel-S  a) (bigfloat->flonum (bfFresnel-S  (bf a))) ε (format "(Fresnel-S ~a)" a))
     (check-= (Fresnel-RS a) (bigfloat->flonum (bfFresnel-RS (bf a))) ε (format "(Fresnel-RS ~a)" a))
-    (check-= (Fresnel-C a)  (bigfloat->flonum (bfFresnel-C (bf a)))  ε (format "(Fresnel-C ~a)" a))
+    (check-= (Fresnel-C  a) (bigfloat->flonum (bfFresnel-C  (bf a))) ε (format "(Fresnel-C ~a)" a))
     (check-= (Fresnel-RC a) (bigfloat->flonum (bfFresnel-RC (bf a))) ε (format "(Fresnel-RC ~a)" a)))
 
   (test 0.1)
@@ -241,6 +296,31 @@ would like to extend this together with erf to the complex plane
   (check-equal? (Fresnel-C -1)(-(Fresnel-C 1)))
   (check-equal? (Fresnel-S -5)(-(Fresnel-S 5)))
   (check-equal? (Fresnel-C -5)(-(Fresnel-C 5)))
+
+  (check-= (magnitude
+            (/ (complex-Fresnel-S 1+i)
+               -2.0618882191948404680807165366857086008159083237378680520+2.0618882191948404680807165366857086008159083237378680520i))
+           1 1e-12)
+  (check-= (magnitude
+            (/ (complex-Fresnel-S 5+0.2i)
+               0.47365635370953447150430003290670950910437504109567910708+0.73462461062246762668741695076291749315532498862606992695i))
+           1 1e-12)
+  (check-= (magnitude
+            (/ (complex-Fresnel-S -8-25i)
+               4.33491319138289340482459027250885195089165476877024e270+1.38537242126661103439768955547584123133806956947632e270i))
+           1 1e-12)
+  (check-= (magnitude
+            (/ (complex-Fresnel-C 1+i)
+               2.55579377810243902463452238835219584215662360420358429635+2.55579377810243902463452238835219584215662360420358429635i))
+           1 1e-12)
+  (check-= (magnitude
+            (/ (complex-Fresnel-C 5+0.2i)
+               1.237351377588089955209810162536250644901272375752411527+0.02602758966318992966794130566838646516498797340046208293i))
+           1 1e-12)
+  (check-= (magnitude
+            (/ (complex-Fresnel-C -8-25i)
+               1.38537242126661103439768955547584123133806956947632e270-4.33491319138289340482459027250885195089165476877024e270i))
+           1 1e-12)
 
   #;(let ()
     (local-require plot)

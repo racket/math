@@ -14,7 +14,7 @@ IEEE Transactions on Communications, 2000, vol 48, pp 529--532
          "continued-fraction.rkt")
 
 (provide flerf flerfc*expsqr flerfc
-         erf erfc)
+         erf erfc complex-erf)
 
 ;; ===================================================================================================
 ;; erf
@@ -242,11 +242,14 @@ IEEE Transactions on Communications, 2000, vol 48, pp 529--532
 
 (: erf (case-> (Zero -> Zero)
                (Flonum -> Flonum)
-               (Real -> (U Zero Flonum))))
-(define (erf x)
-  (cond [(flonum? x)  (flerf x)]
+               (Real -> (U Zero Flonum))
+               (Number -> Number)))
+(define (erf z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
+  (cond [(flonum? x) (flerf x)]
         [(eqv? x 0)  x]
-        [else  (flerf (fl x))]))
+        [(real? x)  (flerf (fl x))]
+        [else       (complex-erf z)]))
 
 (: erfc (case-> (Zero -> One)
                 (Flonum -> Flonum)
