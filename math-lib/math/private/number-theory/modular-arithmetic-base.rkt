@@ -152,7 +152,7 @@
   
   (define-syntax (modular/ stx)
     (syntax-case stx ()
-      [(_ n a)  (syntax/loc stx (modular-inverse n a))]
+      [(_ n a)  (syntax/loc stx (modular-inverse a n))]
       [(_ n a b ...)  (syntax/loc stx
                         (modular* n a (modular-inverse* n (modular* n b ...))))]))
   
