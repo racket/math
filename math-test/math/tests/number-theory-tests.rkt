@@ -249,6 +249,11 @@
       [n : Natural (in-range 2 5)])
   (check-true (check-integer-root a n)))
 
+(check-equal? (modular-inverse 3 7) 5)
+(check-equal? (with-modulus 7 (mod/ 1 3)) 5)
+(check-equal? (with-modulus 7 (mod/ 3)) 5)
+
+
 ; "quadratic-residues.rkt"
 (check-equal? (quadratic-character  2 5) -1)
 (check-equal? (quadratic-character  3 5) -1)
