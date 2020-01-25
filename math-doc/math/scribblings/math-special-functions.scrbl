@@ -28,9 +28,9 @@ in terms of their flonum counterparts, but are different in two crucial ways:
        @racket[exn:fail:contract] instead of returning @racket[+nan.0].}
 ]
 
-Only functions in @secref{complex-functions} support accepting or returning complex arguments.
+Only functions in @secref{complex-real-functions} support accepting or returning complex arguments.
 Mathematically, some of the other functions could return complex numbers given
-real numbers, such @racket[hurwitz-zeta] when given a negative second argument. In
+real numbers, such as @racket[hurwitz-zeta] when given a negative second argument. In
 these cases, they raise an @racket[exn:fail:contract] (for an exact argument) or return
 @racket[+nan.0] (for an inexact argument).
 
@@ -56,7 +56,7 @@ The most general type @racket[Real -> (U Zero Flonum)] is used to generate
 @racket[lambert]'s contract when it is used in untyped code. Except for this discussion,
 this the only type documented for @racket[lambert].
 
-@section[#:tag "complex-real-functions"]{Complex and real Functions}
+@section[#:tag "complex-real-functions"]{Complex and Real Functions}
 
 @defproc[(gamma [x Number]) Number]{
 Computes the @hyperlink["http://en.wikipedia.org/wiki/Gamma_function"]{gamma function},
@@ -83,7 +83,7 @@ When @racket[x] is an exact integer, @racket[(gamma x)] is exact.
                   (eval:result @racketresultfont{(bf "1.241018070217667823424840524103103992618e309")}))]
 
 On the real line the error is no more than 10 @tech{ulps} everywhere that has been tested, and is usually no more than 4
-ulps. In the rest of the complex plane the relative error is smaller than 1e-13 (@tech{ulps}=450).
+ulps. In the rest of the complex plane the relative error is smaller than 1e-13 except in the very close neighbourhood of negative integers, where the error can increase signifiantly.
 }
 
 @defproc[(log-gamma [x Number]) Number]{
@@ -185,7 +185,7 @@ manipulate @racket[(- 1.0 (erfc x))] and its surrounding expressions to avoid th
 For negative @racket[x] away from @racket[0.0], do the same with @racket[(- (erfc (- x)) 1.0)].
 
 For @racket[erf], on the real line the error is no greater than 2 @tech{ulps} everywhere that has been tested, and
-is almost always no greater than 1. In the complex plane the relative error is smaller 1e-12. For @racket[erfc], observed error is no greater than 4 ulps,
+is almost always no greater than 1. In the complex plane the relative error is smaller than 1e-12. For @racket[erfc], observed error is no greater than 4 ulps,
 and is usually no greater than 2.
 }
 
