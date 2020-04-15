@@ -195,5 +195,5 @@ fl2<=
 ;; FPU testing
 
 (check-equal? (parameterize ([print-fp-test-progress? #f])
-                (test-floating-point 1000))
+                (test-floating-point 10000))
               empty)

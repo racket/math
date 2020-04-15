@@ -65,16 +65,18 @@
  test-floating-point)
 
 ;; Allowable error for different kinds of functions, in ulps
-(define flonum-fun-ulps 0.5)
+(define flonum-fun-ulps 0.6)
 (define fllog2-ulps 1.0)
 (define fllogb-ulps 2.5)
-(define flonum/error-fun-ulps 0.5)
-(define flexp/error-fun-ulps 3.0)
+(define flonum/error-fun-ulps 0.6)
 (define fl2-conversion-ulps 0.5)
 (define unary-fl2-fun-ulps 1.0)
-(define binary-fl2-fun-ulps 8.0)
-(define fl2exp-fun-ulps 3.0)
+(define binary-fl2-fun-ulps 32.0)
 (define fl2log-fun-ulps 2.0)
+
+;; these both have very large potential error
+(define flexp/error-fun-ulps 1e20)
+(define fl2exp-fun-ulps 1e20)
 
 (: current-max-ulp-error (Parameterof Nonnegative-Flonum))
 (define current-max-ulp-error (make-parameter 0.0))
@@ -114,7 +116,7 @@
 (: print-fp-test-progress? (Parameterof Boolean))
 (define print-fp-test-progress? (make-parameter #t))
 
-(define progress-chunk-size 200)
+(define progress-chunk-size 2000)
 (define progress-superchunk-chunks 5)
 
 (: maybe-print-progress (Symbol Integer Natural -> Void))
@@ -223,7 +225,7 @@
 
 (: unary-flonum-fun-error ((Flonum -> Flonum) (Bigfloat -> Bigfloat) Flonum -> Flonum-Error))
 (define (unary-flonum-fun-error f g x)
-  (flonum-error (f x) (parameterize ([bf-precision 53])
+  (flonum-error (f x) (parameterize ([bf-precision 256])
                         (g (bf x)))))
 
 (: test-unary-flonum-fun
@@ -242,7 +244,7 @@
 (: binary-flonum-fun-error
    ((Flonum Flonum -> Flonum) (Bigfloat Bigfloat -> Bigfloat) Flonum Flonum -> Flonum-Error))
 (define (binary-flonum-fun-error f g x y)
-  (flonum-error (f x y) (parameterize ([bf-precision 53])
+  (flonum-error (f x y) (parameterize ([bf-precision 256])
                           (g (bf x) (bf y)))))
 
 (: test-binary-flonum-fun
@@ -343,8 +345,8 @@
 ;; ===================================================================================================
 ;; Flonum expansions
 
-(define-type Unary-Fl2-Failure (List (List Symbol Flonum Flonum) Fl2-Error))
-(define-type Binary-Fl2-Failure (List (List Symbol Flonum Flonum Flonum Flonum) Fl2-Error))
+(define-type Unary-Fl2-Failure (List (List Symbol Flonum Flonum Number) Fl2-Error))
+(define-type Binary-Fl2-Failure (List (List Symbol Flonum Flonum Flonum Flonum Number Number) Fl2-Error))
 
 (: unary-fl2-fun-error ((Flonum Flonum -> (Values Flonum Flonum)) (Bigfloat -> Bigfloat)
                                                                   Flonum Flonum -> Fl2-Error))
@@ -364,7 +366,7 @@
                                             [i  (in-naturals 1)])
      (maybe-print-progress name i m)
      (define-values (x2 x1) (fl2 x))
-     (list (list name x2 x1) (unary-fl2-fun-error f g x2 x1)))
+     (list (list name x2 x1 x) (unary-fl2-fun-error f g x2 x1)))
    (current-max-ulp-error)))
 
 (: binary-fl2-fun-error ((Flonum Flonum Flonum Flonum -> (Values Flonum Flonum))
@@ -391,7 +393,7 @@
      (maybe-print-progress name i m)
      (define-values (x2 x1) (fl2 x))
      (define-values (y2 y1) (fl2 y))
-     (list (list name x2 x1 y2 y1) (binary-fl2-fun-error f g x2 x1 y2 y1)))
+     (list (list name x2 x1 y2 y1 x y) (binary-fl2-fun-error f g x2 x1 y2 y1)))
    (current-max-ulp-error)))
 
 ;; ===================================================================================================
