@@ -8,7 +8,8 @@
          "private/matrix/matrix-comprehension.rkt"
          "private/matrix/matrix-types.rkt"
          "private/matrix/matrix-2d.rkt"
-         ;;"private/matrix/matrix-expt.rkt"  ; all use require/untyped-contract
+         ;;"private/matrix/matrix-expt.rkt"        ; all use require/untyped-contract
+         ;;"private/matrix/matrix-kronecker.rkt"   ; all use require/untyped-contract
          ;;"private/matrix/matrix-gauss-elim.rkt"  ; all use require/untyped-contract
          (except-in "private/matrix/matrix-solve.rkt"
                     matrix-determinant
@@ -47,6 +48,11 @@
  (begin (require "private/matrix/matrix-types.rkt"))
  "private/matrix/matrix-expt.rkt"
  [matrix-expt  ((Matrix Number) Integer -> (Matrix Number))])
+
+(require/untyped-contract
+ (begin (require "private/matrix/matrix-types.rkt"))
+ "private/matrix/matrix-kronecker.rkt"
+ [matrix-kronecker ((Matrix Number) (Matrix Number) * -> (Matrix Number))])
 
 (require/untyped-contract
  (begin (require "private/matrix/matrix-types.rkt"
@@ -172,6 +178,8 @@
           "private/matrix/matrix-2d.rkt")
          ;; matrix/matrix-expt.rkt
          matrix-expt
+         ;; matrix/matrix-kronecker.rkt
+         matrix-kronecker
          ;; matrix-gauss-elim.rkt
          matrix-gauss-elim
          matrix-row-echelon

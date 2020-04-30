@@ -435,6 +435,21 @@
   (check-exn exn:fail:contract? (λ () (matrix-expt a 0))))
 
 ;; ===================================================================================================
+;; Kronecker product
+
+(check-equal? (matrix-kronecker (matrix [[1 2]
+                                         [3 4]
+                                         [5 6]])
+                                (matrix [[7 8]
+                                         [9 10]]))
+              (matrix [[7 8 14 16]
+                       [9 10 18 20]
+                       [21 24 28 32]
+                       [27 30 36 40]
+                       [35 40 42 48]
+                       [45 50 54 60]]))
+
+;; ===================================================================================================
 ;; Comprehensions
 
 ;; for:/matrix and friends are defined in terms of for:/array and friends, so we only need to test
