@@ -414,6 +414,7 @@ Computes the Kronecker product.
 @examples[#:eval untyped-eval
                  (matrix-kronecker (matrix [[1 2] [3 4] [5 6]])
                                    (matrix [[7 8] [9 10]]))]
+@history[#:added "1.2"]
 }
 
 @defproc*[([(matrix-map [f (A -> R)] [M (Matrix A)]) (Matrix R)]

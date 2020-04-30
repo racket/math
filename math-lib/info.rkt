@@ -19,4 +19,4 @@
 
 (define pkg-authors '(ntoronto))
 
-(define version "1.1")
+(define version "1.2")
