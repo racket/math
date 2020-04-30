@@ -409,6 +409,13 @@ where each entry in @racket[M] is multiplied with @racket[z].
                  (matrix-scale (matrix [[1 2] [3 4]]) 2)]
 }
 
+@defproc[(matrix-kronecker [M (Matrix Number)] [N (Matrix Number)] ...) (Matrix Number)]{
+Computes the Kronecker product.
+@examples[#:eval untyped-eval
+                 (matrix-kronecker (matrix [[1 2] [3 4] [5 6]])
+                                   (matrix [[7 8] [9 10]]))]
+}
+
 @defproc*[([(matrix-map [f (A -> R)] [M (Matrix A)]) (Matrix R)]
            [(matrix-map [f (A B Ts ... -> R)] [M0 (Matrix A)] [M1 (Matrix B)] [N (Matrix Ts)]
                         ...)
