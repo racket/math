@@ -71,7 +71,7 @@
 (define flonum/error-fun-ulps 0.6)
 (define fl2-conversion-ulps 0.5)
 (define unary-fl2-fun-ulps 1.0)
-(define binary-fl2-fun-ulps 32.0)
+(define binary-fl2-fun-ulps 3000.0)
 (define fl2log-fun-ulps 2.0)
 
 ;; these both have very large potential error
