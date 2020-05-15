@@ -410,6 +410,7 @@ where each entry in @racket[M] is multiplied with @racket[z].
 }
 
 @defproc[(matrix-kronecker [M (Matrix Number)] [N (Matrix Number)] ...) (Matrix Number)]{
+@margin-note*{Wikipedia: @hyperlink["https://en.wikipedia.org/wiki/Kronecker_product"]{Kronecker product}}
 Computes the Kronecker product.
 @examples[#:eval untyped-eval
                  (matrix-kronecker (matrix [[1 2] [3 4] [5 6]])
