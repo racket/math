@@ -174,6 +174,18 @@
       (unless (equal? q q0)
         (printf "bad string conversion: mode = ~v  q = ~v/~v~n" mode i j))
       (check-equal? q q0))))
+      
+;; Even/odd functions
+
+(for ([i (in-range -20 20)])
+  (check-pred (if (even? i) bfeven? bfodd?) (bf i)))
+
+;; Check that bfeven? is fast (<10ms) for large inputs
+(define t (current-inexact-milliseconds))
+(check-true (bfeven? (bfstep +inf.bf -1)))
+(check < (- (current-inexact-milliseconds) t) 10)
+
+;; Sanity tests
 
 (parameterize ([bf-precision 53])
   (for ([f+xs+ys
