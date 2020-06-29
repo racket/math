@@ -5,7 +5,7 @@
 (provide random-bits random-natural random-integer)
 
 ;; Random bits are taken in blocks of this size:
-(define block-bits 30)
+(define block-bits 29)
 (define block-size (arithmetic-shift 1 block-bits))
 
 (: random-bits (Integer -> Natural))
