@@ -38,7 +38,7 @@
     [(_ (c0:expr c:expr ...))
      (syntax/loc stx
        (λ: ([z : Float])
-         (fl+ c0 (fl* z ((make-polyfun (c ...)) (fl* z z))))))]))
+         (fl+ c0 (fl* z ((make-flpolyfun (c ...)) (fl* z z))))))]))
 
 (define-syntax (make-quotient-flpolyfun stx)
   (syntax-parse stx
