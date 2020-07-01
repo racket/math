@@ -1,6 +1,7 @@
 #lang scribble/manual
 
-@(require scribble/eval
+@(require (only-in scribble/example examples)
+          (except-in scribble/eval examples)
           racket/sandbox
           (for-label racket/base racket/promise
                      (except-in racket/list permutations) ; FIXME
@@ -10,6 +11,7 @@
                               Sequenceof Positive-Flonum Nonnegative-Flonum))
           "utils.rkt")
 
+@(define typed-eval (make-plain-math-eval))
 @(define untyped-eval (make-untyped-math-eval))
 @interaction-eval[#:eval untyped-eval (require racket/list)]
 
@@ -182,6 +184,10 @@ type a distribution returns as random samples.
                  ((distribution-sample (normal-dist)))]
 See @racket[pdf] and @racket[sample] for uncurried forms of @racket[distribution-pdf] and
 @racket[distribution-sample].
+
+@examples[#:eval typed-eval
+          #:label "Type Examples:"
+          (ann (poisson-dist) (distribution Real Real))]
 }
 
 @defform[#:kind "type" #:link-target? #f (ordered-dist In Out)]{}
@@ -206,6 +212,10 @@ The median is stored in an @racket[ordered-dist] to allow interval probabilities
 accurately. For example, for @racket[d = (normal-dist)], whose median is @racket[0.0],
 @racket[(real-dist-prob d -2.0 -1.0)] is computed using lower-tail probabilities, and
 @racket[(real-dist-prob d 1.0 2.0)] is computed using upper-tail probabilities.
+
+@examples[#:eval typed-eval
+          #:label "Type Examples:"
+          (ann (poisson-dist) (ordered-dist Real Real))]
 }
 
 @defidform[Real-Dist]{
