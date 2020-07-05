@@ -226,14 +226,15 @@ IEEE Transactions on Communications, 2000, vol 48, pp 529--532
     [else
      (define neg? (< (real-part z) 0))
      (define z+ (if neg? (- z) z))
+     (define z² (* z+ z+))
      (define nmax 193)
-     (define y (* 2 z z))
+     (define y (* 2 z²))
      (define s (for/fold : Number
                  ([s : Number 1])
                  ([n (in-range nmax 0 -2)])
                  (- 1 (* n (/ s y)))))
      (define f (* (if neg? -1 1)
-                  (- 1 (* s (/ (exp (* -1 z z)) (* sqrtpi z))))))
+                  (- 1 (* s (/ (exp (* -1 z²)) (* sqrtpi z+))))))
      (if (= (real-part z) 0)
          (- f 1)
          f)]))
