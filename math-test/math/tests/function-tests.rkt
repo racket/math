@@ -59,6 +59,10 @@
 (check-equal? (flhypot 4. 3.) 5.)
 (check-= (flhypot 2. 3.) 3.6055512754639892931 (ε))
 (check-= (flhypot 3. 2.) 3.6055512754639892931 (ε))
+(check-equal? (flhypot +inf.0 -inf.0) +inf.0)
+(check-equal? (flhypot 1. -inf.0) +inf.0)
+(check-equal? (flhypot +inf.0 1.) +inf.0)
+(check-equal? (flhypot +inf.0 +nan.0) +nan.0)
   
 ;; ---------------------------------------------------------------------------------------------------
 ;; logs, exponents, bases, etc.
