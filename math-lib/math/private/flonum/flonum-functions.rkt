@@ -133,9 +133,10 @@
     (let ([xa  (flmin xa ya)]
           [ya  (flmax xa ya)])
       (cond [(fl= xa 0.0)  ya]
-            [(flinfinite? xa) xa]
-            [else  (define u (fl/ xa ya))
-                   (fl* ya (flsqrt (fl+ 1.0 (fl* u u))))])))
+            [(flrational? ya)
+             (define u (fl/ xa ya))
+             (fl* ya (flsqrt (fl+ 1.0 (fl* u u))))]
+            [else ya])))
   
   ;; todo: overflow not likely; underflow likely
   (: fllog/base (Flonum Flonum -> Flonum))
