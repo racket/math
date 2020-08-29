@@ -332,11 +332,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
 (define mpfr-exp-invalid
   (arithmetic-shift 1 (- (quotient (* gmp-limb-bits sizeof-exp_t) sizeof-mp_limb_t) 2)))
 
-(define mpfr-exp-nan
-  (let ()
-    (define x (make-mpfr 0 0 0 #f))
-    (mpfr-set-nan x)
-    (mpfr-exp x)))
+(define mpfr-exp-nan #f) ; initialized on demand
 
 ;; mpfr-set-alloc-size! : pointer integer -> void
 ;; Reimplementation of MPFR_SET_ALLOC_SIZE
@@ -359,7 +355,14 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
   (cpointer-push-tag! x mpfr-tag)
   (set-mpfr-prec! x prec)
   (set-mpfr-sign! x 0)
-  (set-mpfr-exp! x mpfr-exp-nan) ; what `mpfr-init2' does
+  (set-mpfr-exp! x (or mpfr-exp-nan ; what `mpfr-init2' does
+                       (let ()
+                         ;; potential race initializing `mpfr-exp-nan` should be benign
+                         (define x (make-mpfr 0 0 0 #f))
+                         (mpfr-set-nan x)
+                         (define exp (mpfr-exp x))
+                         (set! mpfr-exp-nan exp)
+                         exp)))
   (set-mpfr-d! x d)
   ;; Add struct wrapper:
   (make-wrap-mpfr x))
