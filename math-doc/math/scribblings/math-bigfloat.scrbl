@@ -576,7 +576,7 @@ Computes @racket[x]@superscript{@racket[y]}. See @racket[flexpt] and @racket[exp
               @defproc[(bfasin [x Bigfloat]) Bigfloat]
               @defproc[(bfacos [x Bigfloat]) Bigfloat]
               @defproc[(bfatan [x Bigfloat]) Bigfloat]
-              @defproc[(bfatan2 [x Bigfloat] [y Bigfloat]) Bigfloat])]{
+              @defproc[(bfatan2 [y Bigfloat] [x Bigfloat]) Bigfloat])]{
 Standard trigonometric functions and their inverses.
 }
 
