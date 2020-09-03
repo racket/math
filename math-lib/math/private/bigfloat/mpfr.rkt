@@ -211,7 +211,7 @@
        (current-directory))))
 
 ;; _mpfr: a multi-precision float with rounding (the main data type)
-(define-cstruct _mpfr ([prec _prec_t] [sign _sign_t] [exp _exp_t] [d _gcpointer])
+(define-cstruct _mpfr ([prec _prec_t] [sign _sign_t] [exp _exp_t] [d _pointer])
   #:property prop:custom-print-quotable 'never
   #:property prop:custom-write (λ (b port mode) (bigfloat-custom-write b port mode))
   #:property prop:equal+hash (list bigfloat-equal? bigfloat-hash bigfloat-hash)
