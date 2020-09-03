@@ -114,7 +114,9 @@
 ;; Converts an mpz_t to a Racket integer.
 (define (mpz->integer z)
   (if (zero? (mpz-fits-long? z))
-      (size+limbs->integer (mpz-size z) (mpz-limbs z))
+      (begin0
+        (size+limbs->integer (mpz-size z) (mpz-limbs z))
+        (void/reference-sink z))
       (mpz-get-si z)))
 
 ;; ===================================================================================================
