@@ -4,7 +4,7 @@
 The constants used for argument reduction in flexp/error and flexpm1/error
 |#
 
-(require "../../../base.rkt"
+(require (only-in racket/math exact-floor)
          "../flonum-constants.rkt"
          "../flonum-functions.rkt")
 
