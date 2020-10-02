@@ -22,37 +22,32 @@
   (: fllog1p (Float -> Float))
   ;; Computes the value of log(1+x) in a way that is accurate for small x
   (define fllog1p
-    (let ([expm1-min 0.0005])
+    (let ([epsilon.0/2 (fl* 0.5 epsilon.0)])
+      ;; Taylor approximation for log1p.
+      ;; don't put the first term (1.0) in the poly since to much accuracy will be lost
+      (define taylor-log1p-7terms
+        (let ([taylor (make-flpolyfun (#i-1/2 #i1/3 #i-1/4 #i1/5 #i-1/6 #i1/7))])
+          (λ ([x : Flonum]) (fl+ x (fl* x (taylor x))))))
+      (define taylor-log1p-16terms
+        (let ([taylor (make-flpolyfun (#i-1/2 #i1/3 #i-1/4 #i1/5 #i-1/6 #i1/7 #i-1/8 #i1/9
+                                       #i-1/10 #i1/11 #i-1/12 #i1/13 #i-1/14 #i1/15 #i-1/16))])
+          (λ ([x : Flonum]) (fl+ x (fl* x (taylor x))))))
     ;; Taylor approximation for expm1 of 8 terms
-    (define taylor8 (make-flpolyfun (1.0 0.5 #i1/6 #i1/24 #i1/120 #i1/720 #i1/5040 #i1/40320)))
-    (define taylor (λ ([x : Flonum]) (* x (taylor8 x))))
+    (define taylor-expm1-8terms
+      (let ([taylor (make-flpolyfun (1.0 0.5 #i1/6 #i1/24 #i1/120 #i1/720 #i1/5040 #i1/40320))])
+        (λ ([x : Flonum]) (* x (taylor x)))))
     (λ (x)
       (define ax (flabs x))
       (cond
-        [(fl= x -1.0) -inf.0]
-        [(fl< x -1.0) +nan.0]
-        [(flinfinite? x) +inf.0]
         [(ax . fl>= . 4.0)  (fllog (fl+ 1.0 x))] ;; <= change boundary
-        [(ax . fl<= . (fl* 0.5 epsilon.0)) x]
+        [(ax . fl<= . epsilon.0/2) x]
+        [(ax . fl<= . 1e-3) (taylor-log1p-7terms x)]
+        [(ax . fl<= . 1e-1) (taylor-log1p-16terms x)]
+        [(x  . fl=  . -1.0) -inf.0]
         [(x  . fl<= . -0.5)
          (define y (fl+ 1.0 x))
          (fl- (fllog y) (fl/ (fl- (fl- y 1.0) x) y))]
         ;; calculate in fl2
-        [(ax . fl< . expm1-min)
-         ;; Gutted fl2log, to not do more fl2 computations than necessary
-         (let*-values
-             ([(x+1)      (fl+ x 1.0)]
-              [(x*)       (fl- x+1 1.0)]
-              ;; do a Newton iteration using expm1
-              ;; 0+y+d is a Taylor approximation for expm1, d=terms 2 to 5
-              [(y)        (fllog x+1)]
-              [(d) (fl* y (fl* y (fl+ 0.5 (fl* y (fl+ #i1/6 (fl* y (fl+ #i1/24 (fl* y #i1/120))))))))]
-              ;; fast-fl//error is ok since both arguments are expected in range [1e-35 1e2]
-              [(dy2 dy1)  (fast-fl//error (fl- (fl- x* y) d)
-                                          (fl+ (fl+ y d) 1.0))]
-              ;; fast-mono-fl+/error is ok since |y| > |dy2|
-              [(y2 y1)    (fast-mono-fl+/error y dy2)])
-           (fl- y2 (fl- (fl/ (fl- x* x) x+1) (fl+ y1 dy1))))]
         [else
          ;; Gutted fl2log, to not do more fl2 computations than necessary
          (let*-values
@@ -61,7 +56,7 @@
               [(x*)       (fl- x+1 1.0)]
               [(y)        (fllog x+1)]
               [(x2 d2 d1) (flexpm1-reduction y)]
-              [(r2)       (taylor x2)];
+              [(r2)       (taylor-expm1-8terms x2)];
               [(w2 w1)    (fast-mono-fl+/error 1.0 r2)]
               ;; faster than fl2* and accurate 'enough'
               [(u2 u1)    (fast-fl*/error d2 w2)]
