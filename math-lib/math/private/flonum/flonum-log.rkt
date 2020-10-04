@@ -27,11 +27,11 @@
       ;; don't put the first term (1.0) in the poly since to much accuracy will be lost
       (define taylor-log1p-7terms
         (let ([taylor (make-flpolyfun (#i-1/2 #i1/3 #i-1/4 #i1/5 #i-1/6 #i1/7))])
-          (λ ([x : Flonum]) (fl+ x (fl* x (taylor x))))))
+          (λ ([x : Flonum]) (fl+ x (fl* x (fl* x (taylor x)))))))
       (define taylor-log1p-16terms
         (let ([taylor (make-flpolyfun (#i-1/2 #i1/3 #i-1/4 #i1/5 #i-1/6 #i1/7 #i-1/8 #i1/9
                                        #i-1/10 #i1/11 #i-1/12 #i1/13 #i-1/14 #i1/15 #i-1/16))])
-          (λ ([x : Flonum]) (fl+ x (fl* x (taylor x))))))
+          (λ ([x : Flonum]) (fl+ x (fl* x (fl* x (taylor x)))))))
     ;; Taylor approximation for expm1 of 8 terms
     (define taylor-expm1-8terms
       (let ([taylor (make-flpolyfun (1.0 0.5 #i1/6 #i1/24 #i1/120 #i1/720 #i1/5040 #i1/40320))])
