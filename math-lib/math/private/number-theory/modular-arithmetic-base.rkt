@@ -49,12 +49,14 @@
   ;; Exponentiate by repeated modular multiplication and squaring
   (define (modular-expt* n a b)
     (cond [(b . < . 0)  (raise-argument-error 'modular-expt "Natural" 1 a b n)]
+          [(b . = . 0)  (if (n . = . 1) 0 1)]
           [else
-           (let loop ([a a] [b b])
-             (cond [(b . <= . 1)  (if (zero? b) (modulo 1 n) (modulo a n))]
-                   [(even? b)  (define c (loop a (quotient b 2)))
-                               (modulo (* c c) n)]
-                   [else  (modulo (* a (loop a (sub1 b))) n)]))]))
+           (let ([a (modulo a n)])
+             (let loop ([b b])
+               (cond [(b . = . 1)  a]
+                     [(even? b)  (define c (loop (quotient b 2)))
+                                 (modulo (* c c) n)]
+                     [else  (modulo (* a (loop (sub1 b))) n)])))]))
   
   (: modular-const* (Positive-Integer Exact-Rational -> Natural))
   (define (modular-const* n a)
