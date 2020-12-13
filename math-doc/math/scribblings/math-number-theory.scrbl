@@ -93,7 +93,7 @@ factor 3:
 
   @racketblock[x = #,(elem @racket[a] @subscript{1}) #,(elem "(mod " @racket[n] @subscript{1} ")")
                 ...
-               x = #,(elem @racket[a] @subscript{@racket[k]}) #,(elem "(mod " @racket[x] @subscript{@racket[k]} ")")]
+               x = #,(elem @racket[a] @subscript{@racket[k]}) #,(elem "(mod " @racket[n] @subscript{@racket[k]} ")")]
 
   The solution @racket[x] is less than
   @racket[(* #,(elem @racket[n] @subscript{1}) ... #,(elem @racket[n] @subscript{@racket[k]}))].
