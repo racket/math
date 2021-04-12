@@ -8,7 +8,6 @@
          "flonum-error.rkt"
          "flonum-polyfun.rkt"
          "expansion/expansion-base.rkt"
-         "expansion/expansion-exp-reduction.rkt"
          "flvector.rkt")
 
 (provide fllog1p fllog+
