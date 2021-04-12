@@ -131,6 +131,7 @@
 
 ;;; PRIMALITY TESTS
 
+; From Modern Computer Algebra by Joachim von sur Gathen and Jürgen Gerhard
 ; Strong pseudoprimality test
 ; The strong test returns one of:
 ;   'probably-prime                                        if n is a prime
@@ -192,6 +193,8 @@
 (: prime? : Integer -> Boolean)
 (define prime?
   (let ()
+    ; Sieve of Eratosthenes
+    ; https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
     ; TODO: Only store odd integers in this table
     (define N *VERY-SMALL-PRIME-LIMIT*)
     (define ps (make-vector (+ N 1) #t))

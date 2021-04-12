@@ -6,6 +6,9 @@
  [bit-vector-set! (BitVector Integer Boolean -> Void)]
  [bit-vector-ref  (BitVector Integer -> Boolean)])
 
+; Primality testing using a Sieve of Atkin
+; https://en.wikipedia.org/wiki/Sieve_of_Atkin
+
 (provide small-prime?
          *SMALL-PRIME-LIMIT*)
 
