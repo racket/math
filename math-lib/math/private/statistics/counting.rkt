@@ -19,7 +19,7 @@
 
 (: unweighted-samples->hash (All (A) ((Sequenceof A) -> (HashTable A Positive-Integer))))
 (define (unweighted-samples->hash xs)
-  (define: h : (HashTable A Positive-Integer)  (make-hash))
+  (define: h : (Mutable-HashTable A Positive-Integer)  (make-hash))
   (for: ([x : A  xs])
     (hash-set! h x (unsafe-fx+ 1 (hash-ref h x (λ () 0)))))
   h)
@@ -28,7 +28,7 @@
                                                    -> (HashTable A Nonnegative-Real))))
 (define (weighted-samples->hash xs ws)
   (let-values ([(xs ws)  (sequences->weighted-samples 'samples->hash xs ws)])
-    (define: h : (HashTable A Nonnegative-Real)  (make-hash))
+    (define: h : (Mutable-HashTable A Nonnegative-Real)  (make-hash))
     (for: ([x : A  xs] [w : Nonnegative-Real  ws])
       (hash-set! h x (+ w (hash-ref h x (λ () 0)))))
     h))
