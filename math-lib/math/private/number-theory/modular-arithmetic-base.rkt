@@ -48,7 +48,7 @@
   (: modular-expt* (Positive-Integer Integer Integer -> Natural))
   ;; Exponentiate by repeated modular multiplication and squaring
   (define (modular-expt* n a b)
-    (cond [(b . < . 0)  (raise-argument-error 'modular-expt "Natural" 1 a b n)]
+    (cond [(b . < . 0)  (modular-expt* n (modular-inverse* n a) (- b))]
           [(b . = . 0)  (if (n . = . 1) 0 1)]
           [else
            (let ([a (modulo a n)])

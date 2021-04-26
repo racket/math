@@ -253,6 +253,12 @@
 (check-equal? (with-modulus 7 (mod/ 1 3)) 5)
 (check-equal? (with-modulus 7 (mod/ 3)) 5)
 
+(check-equal? (modular-expt 2 8 11) 3)
+(check-equal? (modular-expt 2 -1 19) 10)
+(check-equal? (modular-expt 3 -2 47) 21)  ; PowerMod[3,-2,47]
+(check-equal? (modular-expt 3 -4 47) 18)  ; PowerMod[3,-4,47]
+
+(check-equal (with-modulus 19 (modexpt 2 -1)) 10)
 
 ; "quadratic-residues.rkt"
 (check-equal? (quadratic-character  2 5) -1)
