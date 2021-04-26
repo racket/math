@@ -175,12 +175,13 @@ This function is also known as the @emph{Legendre symbol}.
 
 @defproc[(modular-expt [a Integer] [b Integer] [n Integer]) Natural]{
   Computes @racket[(modulo (expt a b) n)], but much more efficiently. The modulus @racket[n] must
-  be positive, and the exponent @racket[b] must be nonnegative.
+  be positive.
   
   @examples[#:eval untyped-eval
                    (modulo (expt -6 523) 19)
                    (modular-expt -6 523 19)
                    (modular-expt 9 158235208 19)
+                   (modular-expt 2 -1 11)
                    (eval:alts (code:line (code:comment "don't try this at home!")
                                          (modulo (expt 9 158235208) 19))
                               (eval:result @racketresultfont{4}))
