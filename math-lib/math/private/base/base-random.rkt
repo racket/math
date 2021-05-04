@@ -10,7 +10,8 @@
 
 (: random-bits (Integer -> Natural))
 (define (random-bits bits)
-  (cond [(bits . <= . 0)  (raise-argument-error 'random-bits "Positive-Integer" bits)]
+  (cond [(bits . < . 0)  (raise-argument-error 'random-bits "Non-Negative-Integer" bits)]
+        [(bits . = . 0) 0]
         [else
          (define max-blocks (assert (quotient bits block-bits) index?))
          (define rem-bits (remainder bits block-bits))
