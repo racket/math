@@ -93,7 +93,7 @@ Returns a random integer @racket[n] such that @racket[(a . <= . n)] and @racket[
 }
 
 @defproc[(random-bits [num Integer]) Natural]{
-Returns a random natural smaller than @racket[(expt 2 num)]; @racket[num] must be positive.
+Returns a random natural smaller than @racket[(expt 2 num)]; @racket[num] must be non-negative.
 For powers of two, this is faster than using @racket[random-natural], which
 is implemented in terms of @racket[random-bits], using biased rejection sampling.
 
