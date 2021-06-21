@@ -858,7 +858,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
  [bfsub 'mpfr_sub]
  [bfmul 'mpfr_mul]
  [bfdiv 'mpfr_div]
- [bfremainder 'mpfr_fmod]  ; this may not be right
+ [bfremainder 'mpfr_fmod]
  [bfexpt 'mpfr_pow]
  [bfmax2 'mpfr_max]
  [bfmin2 'mpfr_min]
