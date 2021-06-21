@@ -613,6 +613,11 @@ Simultaneously computes the hyperbolic sine and cosine of @racket[x].
 Returns the factorial of @racket[x].
 }
 
+@defproc[(bfremainder [n Bigfloat] [m Bigfloat]) Bigfloat]{
+Returns the remainder analogous to the Racket @racket[reminder] function. When @racket[m] is
+equal to zero, @racket[+nan.bf] is returned.
+}
+
 @defproc[(bfgamma [x Bigfloat]) Bigfloat]{
 Computes the @hyperlink["http://en.wikipedia.org/wiki/Gamma_function"]{gamma function},
 a generalization of the factorial function.
