@@ -614,7 +614,7 @@ Returns the factorial of @racket[x].
 }
 
 @defproc[(bfremainder [n Bigfloat] [m Bigfloat]) Bigfloat]{
-Returns the remainder analogous to the Racket @racket[reminder] function. When @racket[m] is
+Returns the remainder analogous to the Racket @racket[remainder] function. When @racket[m] is
 equal to zero, @racket[+nan.bf] is returned.
 }
 
