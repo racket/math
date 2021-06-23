@@ -14,7 +14,7 @@ IEEE Transactions on Communications, 2000, vol 48, pp 529--532
          "continued-fraction.rkt")
 
 (provide flerf flerfc*expsqr flerfc
-         erf erfc)
+         erf erfc complex-erf)
 
 ;; ===================================================================================================
 ;; erf
@@ -198,13 +198,59 @@ IEEE Transactions on Communications, 2000, vol 48, pp 529--532
 
 ;; ===================================================================================================
 
+(: complex-erf (Number -> Number))
+(define 2π (* 2 pi))
+(define (complex-erf z)
+  (cond
+    [(<= (magnitude z) 8)
+     (define nn 32)
+     (define x (real-part z))
+     (define y (imag-part z))
+     (define k1 (* (/ 2 pi) (exp (* -1 x x))))
+     (define k2 (exp (* -i 2 x y)))
+     (define f (+ (erf x)
+                  (if (= x 0)
+                      (* (/ +i pi) y)
+                      (* (/ k1 (* 4 x)) (- 1 k2)))))
+     (cond
+       [(= y 0) f]
+       [else
+        (define s5
+          (for/fold : Number
+            ([s5 : Number 0])
+            ([n (in-range 1 (+ nn 1))])
+            (define s3 (/ (exp (* -1 n n 1/4)) (+ (* n n) (* 4 x x))))
+            (define s4 (- (* 2 x) (* k2 (- (* 2 x (cosh (* n y))) (* +i n (sinh (* n y)))))))
+            (+ s5 (* s3 s4))))
+        (+ f (* k1 s5))])]
+    [else
+     (define neg? (< (real-part z) 0))
+     (define z+ (if neg? (- z) z))
+     (define z² (* z+ z+))
+     (define nmax 193)
+     (define y (* 2 z²))
+     (define s (for/fold : Number
+                 ([s : Number 1])
+                 ([n (in-range nmax 0 -2)])
+                 (- 1 (* n (/ s y)))))
+     (define f (* (if neg? -1 1)
+                  (- 1 (* s (/ (exp (* -1 z²)) (* sqrtpi z+))))))
+     (if (= (real-part z) 0)
+         (- f 1)
+         f)]))
+
+;; ===================================================================================================
+
 (: erf (case-> (Zero -> Zero)
                (Flonum -> Flonum)
-               (Real -> (U Zero Flonum))))
-(define (erf x)
-  (cond [(flonum? x)  (flerf x)]
+               (Real -> (U Zero Flonum))
+               (Number -> Number)))
+(define (erf z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
+  (cond [(flonum? x) (flerf x)]
         [(eqv? x 0)  x]
-        [else  (flerf (fl x))]))
+        [(real? x)  (flerf (fl x))]
+        [else       (complex-erf z)]))
 
 (: erfc (case-> (Zero -> One)
                 (Flonum -> Flonum)
