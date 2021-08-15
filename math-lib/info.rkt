@@ -4,8 +4,7 @@
 
 (define deps '(["base" #:version "6.11.0.6"]
                "r6rs-lib"
-               "typed-racket-lib"
-               "typed-racket-more"
+               ["typed-racket-lib" #:version "1.14"]
                ("math-i386-macosx" #:platform "i386-macosx")
                ("math-x86_64-macosx" #:platform "x86_64-macosx")
                ("math-ppc-macosx" #:platform "ppc-macosx")
