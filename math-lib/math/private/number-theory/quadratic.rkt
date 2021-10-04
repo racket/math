@@ -86,8 +86,8 @@
                 ; same sign.
                 (if (or (and (> (abs a) 1.0) (> ac-sqrt 1.0))
                         (and (< (abs a) 1.0) (< ac-sqrt 1.0)))
-                    (/ (- (* (/ a ac-sqrt) c) ac-sqrt) 2)
-                    (/ (- (* a (/ c ac-sqrt)) ac-sqrt) 2))
+                    (/ (- ac-sqrt (* (/ a ac-sqrt) c)) 2)
+                    (/ (- ac-sqrt (* a (/ c ac-sqrt))) 2))
                 term1))
            ; This one has no worries about cancellation because it's
            ; the sum of two positive values
