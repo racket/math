@@ -1,8 +1,9 @@
 #lang typed/racket/base
 
 (require racket/list
-         (only-in racket/math conjugate)
-         "types.rkt")
+         (only-in racket/math conjugate sgn nan?)
+         "types.rkt"
+         "../flonum/flonum-functions.rkt")
 
 (provide complex-quadratic-solutions  ; complex coefficients
          quadratic-solutions          ; real coefficients
@@ -43,33 +44,66 @@
                      (flsqrt (real->double-flonum c))))
   (define b/2 (/ b 2))
 
-  (define-values sqrt-d
+  (define sqrt-d
     (cond
      [(and (exact? a) (exact? b) (exact? c))
       ; If a/b/c are exact, we want to keep as much of the computation
       ; as possible exact, so the sqrt goes at the end
-      (sqrt (- (* b/2 b/2) (* a c)))]
+      (flsqrt (real->double-flonum (- (* b/2 b/2) (* a c))))]
      [(= (sgn a) (sgn c))
       ; In this case we know that ac is positive so ac-sqrt has the
       ; right sign. In this case we use difference of squares, which
       ; allows us to do the sqrt operations without overflowing.
-      (* (flsqrt (+ (abs b/2) ac-sqrt)) (flsqrt (- (abs b/2) ac-sqrt)))]
+      ;
+      ; So the plan is sqrt(|b/2| + ac-sqrt) sqrt(|b/2| - ac-sqrt)
+      (let* ([term1 (- (abs b/2) ac-sqrt)]
+             [term2 (+ (abs b/2) ac-sqrt)])
+             ; But there is a danger here that ac-sqrt rounded itself, either
+             ; up or down, and so the second term evaluates to zero, when it
+             ; should not. In this case, ac-sqrt has an error of ac-sqrt *
+             ; epsilon, and for the subtraction to yield zero we must have
+             ; |b/2| ~~ ac-sqrt, so the overall magnitude of the error is b
+             ; sqrt(epsilon). That's not good enough, so in this case we
+             ; expand the series out by one tick. That brings the error to a
+             ; small number of ulps, which is good enough.
+        (* (flsqrt
+            (if (= term1 0)
+                ; In this case we just need the error term of ac-sqrt. We solve:
+                ;
+                ;   (ac-sqrt + err)^2 = a c
+                ;   ac-sqrt^2 + 2 ac-sqrt err + err^2 = a c
+                ;   err = (a c - ac-sqrt^2) / 2 ac-sqrt
+                ;       = a / 2 * c / ac-sqrt - ac-sqrt/2
+                ;
+                ; In this derivation I'm dropping the err^2 term
+                ; because it's too small to matter. The key is to
+                ; avoid overflow in the final formula. The most
+                ; important thing to remember here is that for c's and
+                ; ac-sqrt's exponents to have the opposite signs (and
+                ; thus for the final formula to result in overflow) we
+                ; must have a's and c's exponents to have opposite
+                ; signs, so a's and ac-sqrt's exponents must have the
+                ; same sign.
+                (if (or (and (> (abs a) 1.0) (> ac-sqrt 1.0))
+                        (and (< (abs a) 1.0) (< ac-sqrt 1.0)))
+                    (/ (- (* (/ a ac-sqrt) c) ac-sqrt) 2)
+                    (/ (- (* a (/ c ac-sqrt)) ac-sqrt) 2))
+                term1))
+           ; This one has no worries about cancellation because it's
+           ; the sum of two positive values
+           (flsqrt term2)))]
      [else
       ; In this case hypot is perfect.
       (flhypot (real->double-flonum b/2) ac-sqrt)]))
 
-    ; return list of solutions to a a x^2 + b x + c = 0
-    ; Use the standard a/c swap trick to avoid cancellation
+  ; return list of solutions to a a x^2 + b x + c = 0
   (cond
-   [(nan? sqrt-d)
+   [(nan? sqrt-d) 
+    ; Use the standard a/c swap trick to avoid cancellation
     (if (< b 0)
         (list (/ (+ (- b/2) sqrt-d) a) (/ c (+ (- b/2) sqrt-d)))
         (list (/ (- (- b/2) sqrt-d) a) (/ c (- (- b/2) sqrt-d))))]
    [(zero? sqrt-d)
-    ; There is a danger here that ac-sqrt rounded itself, either up
-    ; or down, and these things are not actually equal. But this
-    ; will mostly affect the *number* of roots, not their actual
-    ; values, since in this case the sqrt-d 
     (list (- (/ b/2 a)))]
    [else '()]))
 
