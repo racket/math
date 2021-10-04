@@ -18,7 +18,8 @@
 ; In this case, b^2 > 4 ac so there should be two solutions, but
 ; `sqrt` loses the last bit, so a naive computation will yield
 ; one root.
-(check-equal? (quadratic-solutions 1 (sqrt 8.0000000000000016) 2) '(1.0))
+(define sqrt-8-rounded-up (sqrt 8.0000000000000016))
+(check-equal? (length (quadratic-solutions 1 sqrt-8-rounded-up 2)) 2)
 (check-equal? (quadratic-integer-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-integer-solutions 1 0 +4) '())
 (check-equal? (quadratic-integer-solutions 1 0 0)  '(0))
