@@ -15,6 +15,10 @@
 (check-equal? (quadratic-solutions 1e200 -2e200 1e200) '(1.0))
 (check-equal? (quadratic-solutions 1e-200 2e-200 1e-200) '(-1.0))
 (check-equal? (quadratic-solutions 1e-200 -2e-200 1e-200) '(1.0))
+; In this case, b^2 > 4 ac so there should be two solutions, but
+; `sqrt` loses the last bit, so a naive computation will yield
+; one root.
+(check-equal? (quadratic-solutions 1 (sqrt 8.0000000000000016) 2) '(1.0))
 (check-equal? (quadratic-integer-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-integer-solutions 1 0 +4) '())
 (check-equal? (quadratic-integer-solutions 1 0 0)  '(0))
