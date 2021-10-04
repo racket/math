@@ -37,18 +37,41 @@
               [q    (/ (+ b (* sign sqrt-d)) -2)])
          (list (/ q a) (/ c q)))])))
 
-
 (: quadratic-solutions : Real Real Real -> (Listof Real))
 (define (quadratic-solutions a b c)
-  ; return list of solutions to a a x^2 + b x + c = 0
-  (let ([d (- (* b b) (* 4 a c))])
+  (define ac-sqrt (* (flsqrt (real->double-flonum a))
+                     (flsqrt (real->double-flonum c))))
+  (define b/2 (/ b 2))
+
+  (define-values sqrt-d
     (cond
-      [(< d 0) '()]
-      [(= d 0) (list (/ b (* -2 a)))]
-      [else
-       (let ([sqrt-d (sqrt d)])
-         (list (/ (- (- b) sqrt-d) (* 2 a))
-               (/ (+ (- b) sqrt-d) (* 2 a))))])))
+     [(and (exact? a) (exact? b) (exact? c))
+      ; If a/b/c are exact, we want to keep as much of the computation
+      ; as possible exact, so the sqrt goes at the end
+      (sqrt (- (* b/2 b/2) (* a c)))]
+     [(= (sgn a) (sgn c))
+      ; In this case we know that ac is positive so ac-sqrt has the
+      ; right sign. In this case we use difference of squares, which
+      ; allows us to do the sqrt operations without overflowing.
+      (* (flsqrt (+ (abs b/2) ac-sqrt)) (flsqrt (- (abs b/2) ac-sqrt)))]
+     [else
+      ; In this case hypot is perfect.
+      (flhypot (real->double-flonum b/2) ac-sqrt)]))
+
+    ; return list of solutions to a a x^2 + b x + c = 0
+    ; Use the standard a/c swap trick to avoid cancellation
+  (cond
+   [(nan? sqrt-d)
+    (if (< b 0)
+        (list (/ (+ (- b/2) sqrt-d) a) (/ c (+ (- b/2) sqrt-d)))
+        (list (/ (- (- b/2) sqrt-d) a) (/ c (- (- b/2) sqrt-d))))]
+   [(zero? sqrt-d)
+    ; There is a danger here that ac-sqrt rounded itself, either up
+    ; or down, and these things are not actually equal. But this
+    ; will mostly affect the *number* of roots, not their actual
+    ; values, since in this case the sqrt-d 
+    (list (- (/ b/2 a)))]
+   [else '()]))
 
 (: quadratic-integer-solutions : Real Real Real -> (Listof Integer))
 (define (quadratic-integer-solutions a b c)
