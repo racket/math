@@ -49,7 +49,10 @@
      [(and (exact? a) (exact? b) (exact? c))
       ; If a/b/c are exact, we want to keep as much of the computation
       ; as possible exact, so the sqrt goes at the end
-      (flsqrt (real->double-flonum (- (* b/2 b/2) (* a c))))]
+      (define sqrt-d-number (sqrt (- (* b/2 b/2) (* a c))))
+      (if (real? sqrt-d-number)
+          sqrt-d-number
+          +nan.0)]
      [(= (sgn a) (sgn c))
       ; In this case we know that ac is positive so ac-sqrt has the
       ; right sign. In this case we use difference of squares, which
