@@ -806,7 +806,11 @@ cancellation and overflow intelligently:
   @interaction[#:eval untyped-eval
                       (quadratic-solutions 1e200 2e200 1e200)
                       (quadratic-solutions 1e200 -2e200 1e200)]  
+For exact inputs, if the output can be exactly represented, it will be:
+  @interaction[#:eval untyped-eval
+                      (quadratic-solutions -1 2/3 1/3)]  
 }
+
 
 @defproc[(quadratic-integer-solutions [a Real] [b Real] [c Real]) (Listof Integer)]{
 Returns a list of all integer solutions to the equation @math-style{a x^2 + b x +c = 0}.
