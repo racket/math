@@ -73,10 +73,10 @@
             (if (= term1 0)
                 ; In this case we just need the error term of ac-sqrt. We solve:
                 ;
-                ;   (ac-sqrt + err)^2 = a c
-                ;   ac-sqrt^2 + 2 ac-sqrt err + err^2 = a c
-                ;   err = (a c - ac-sqrt^2) / 2 ac-sqrt
-                ;       = a / 2 * c / ac-sqrt - ac-sqrt/2
+                ;   (ac-sqrt - err)^2 = a c
+                ;   ac-sqrt^2 - 2 ac-sqrt err + err^2 = a c
+                ;   err = (ac-sqrt^2 - a c) / 2 ac-sqrt
+                ;       = (ac-sqrt - a c / ac-sqrt) / 2
                 ;
                 ; In this derivation I'm dropping the err^2 term
                 ; because it's too small to matter. The key is to
@@ -102,13 +102,14 @@
   ; return list of solutions to a a x^2 + b x + c = 0
   (cond
    [(nan? sqrt-d) 
-    ; Use the standard a/c swap trick to avoid cancellation
-    (if (< b 0)
-        (list (/ (+ (- b/2) sqrt-d) a) (/ c (+ (- b/2) sqrt-d)))
-        (list (/ (- (- b/2) sqrt-d) a) (/ c (- (- b/2) sqrt-d))))]
+    '()]
    [(zero? sqrt-d)
     (list (- (/ b/2 a)))]
-   [else '()]))
+   ; Use the standard a/c swap trick to avoid cancellation
+   [(< b 0)
+    (list (/ c (+ (- b/2) sqrt-d)) (/ (+ (- b/2) sqrt-d) a))]
+   [else
+    (list (/ (- (- b/2) sqrt-d) a) (/ c (- (- b/2) sqrt-d)))]))
 
 (: quadratic-integer-solutions : Real Real Real -> (Listof Integer))
 (define (quadratic-integer-solutions a b c)
