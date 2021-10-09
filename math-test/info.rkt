@@ -15,3 +15,6 @@
 (define pkg-desc "Math library tests")
 
 (define pkg-authors '(ntoronto))
+
+(define license
+  '(Apache-2.0 OR MIT))
