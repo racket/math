@@ -19,3 +19,6 @@
 (define pkg-desc "Math library documentation")
 
 (define pkg-authors '(ntoronto))
+
+(define license
+  '(Apache-2.0 OR MIT))
