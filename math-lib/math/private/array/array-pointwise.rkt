@@ -7,8 +7,19 @@
          (rename-in "untyped-array-pointwise.rkt"
                     [array-map  untyped:array-map]))
 
+(module shallow-defs typed/racket/shallow
+  (require typed/racket/unsafe "array-struct.rkt")
+  (provide shallow:array-map)
+  (unsafe-require/typed "untyped-array-pointwise.rkt"
+    [(array-map shallow:array-map)
+     (All (R A B T ...)
+       (case-> ((-> R) -> (Array R))
+               ((A -> R) (Array A) -> (Array R))
+               ((A B T ... T -> R) (Array A) (Array B) (Array T) ... T -> (Array R))))]))
+(require 'shallow-defs)
+
 (define-typed/untyped-identifier array-map
-  typed:array-map untyped:array-map)
+  typed:array-map untyped:array-map shallow:array-map shallow:array-map)
 
 (define-syntax-rule (define-array-op1 name op)
   (define-syntax-rule (name arr) (array-map op arr)))
