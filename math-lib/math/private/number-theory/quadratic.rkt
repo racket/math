@@ -39,6 +39,9 @@
               [q    (/ (+ b (* sign sqrt-d)) -2)])
          (list (/ q a) (/ c q)))])))
 
+;;; This algorithm for complex quadratics is quite complex. A full
+;;; description can be found here:
+;;; https://pavpanchekha.com/blog/accurate-quadratic.html
 (: quadratic-discriminant : Flonum Flonum Flonum -> Real)
 (define (quadratic-discriminant a b c)
   "Compute sqrt(b^2 - a c) with very high accuracy"
