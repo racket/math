@@ -3,7 +3,8 @@
 (require racket/list
          (only-in racket/math conjugate sgn nan?)
          "types.rkt"
-         "../flonum/flonum-functions.rkt")
+         "../flonum/flonum-functions.rkt"
+         "../flonum/flonum-more-functions.rkt")
 
 (provide complex-quadratic-solutions  ; complex coefficients
          quadratic-solutions          ; real coefficients
@@ -38,66 +39,50 @@
               [q    (/ (+ b (* sign sqrt-d)) -2)])
          (list (/ q a) (/ c q)))])))
 
+(: quadratic-discriminant : Flonum Flonum Flonum -> Real)
+(define (quadratic-discriminant a b c)
+  "Compute sqrt(b^2 - a c) with very high accuracy"
+  (let ([aa (abs a)] [ab (abs b)] [ac (abs c)]
+        [sa (> a 0)] [sb (> b 0)] [sc (> c 0)])
+    (define x (* (sqrt aa) (sqrt ac)))
+    (cond
+     ;; Otherwise we have two cases depending on the sign of a c
+     ;; In this case a c is positive and we want sqrt(b^2 - a c)
+     [(equal? sa sc)
+      (define-values (ac/x ac/x.e)
+        ;; Need to compute err(x) ~ (a b / x - x) / 2
+        (if (equal? (> aa 1) (> x 1)) ; In this case do a / x first
+            (let* ([a/x (/ aa x)]
+                   [a/x.e (flfma a/x x (- aa))]
+                   [ac/x (* a/x ac)])
+              (values ac/x (+ (flfma a/x (- ac) ac/x) (* a/x.e ac))))
+            (let* ([c/x (/ ac x)]
+                   [c/x.e (flfma c/x x (- ac))]
+                   [ac/x (* aa c/x)])
+              (values ac/x (+ (flfma (- aa) c/x ac/x) (* c/x.e a))))))
+
+      ;; Now we have d* = |b| - sqrt(ac)
+      (define d* (- (- ab x) (/ (- (- ac/x x) ac/x.e) 2)))
+      (cond
+       [(> d* 0) (* (sqrt d*) (sqrt (+ ab x)))]
+       [(= d* 0) 0]
+       [else +nan.0])]
+     ;; In this case, a c is negative and we want sqrt(b^2 + a c)
+     [else
+      (if (> ab x) ;; Standard sort trick for sqrt(x^2 + y^2)
+          (let ([z (/ x ab)])
+            (* ab (flsqrt (+ 1.0 (* z z)))))
+          (let ([z (/ ab x)])
+            (* x (flsqrt (+ (* z z) 1.0)))))])))
+
 (: quadratic-solutions : Real Real Real -> (Listof Real))
 (define (quadratic-solutions a b c)
-  (define ac-sqrt (* (flsqrt (real->double-flonum a))
-                     (flsqrt (real->double-flonum c))))
   (define b/2 (/ b 2))
-
   (define sqrt-d
-    (cond
-     [(and (exact? a) (exact? b) (exact? c))
-      ; If a/b/c are exact, we want to keep as much of the computation
-      ; as possible exact, so the sqrt goes at the end
-      (define sqrt-d-number (sqrt (- (* b/2 b/2) (* a c))))
-      (if (real? sqrt-d-number)
-          sqrt-d-number
-          +nan.0)]
-     [(= (sgn a) (sgn c))
-      ; In this case we know that ac is positive so ac-sqrt has the
-      ; right sign. In this case we use difference of squares, which
-      ; allows us to do the sqrt operations without overflowing.
-      ;
-      ; So the plan is sqrt(|b/2| + ac-sqrt) sqrt(|b/2| - ac-sqrt)
-      (let* ([term1 (- (abs b/2) ac-sqrt)]
-             [term2 (+ (abs b/2) ac-sqrt)])
-             ; But there is a danger here that ac-sqrt rounded itself, either
-             ; up or down, and so the second term evaluates to zero, when it
-             ; should not. In this case, ac-sqrt has an error of ac-sqrt *
-             ; epsilon, and for the subtraction to yield zero we must have
-             ; |b/2| ~~ ac-sqrt, so the overall magnitude of the error is b
-             ; sqrt(epsilon). That's not good enough, so in this case we
-             ; expand the series out by one tick. That brings the error to a
-             ; small number of ulps, which is good enough.
-        (* (flsqrt
-            (if (= term1 0)
-                ; In this case we just need the error term of ac-sqrt. We solve:
-                ;
-                ;   (ac-sqrt - err)^2 = a c
-                ;   ac-sqrt^2 - 2 ac-sqrt err + err^2 = a c
-                ;   err = (ac-sqrt^2 - a c) / 2 ac-sqrt
-                ;       = (ac-sqrt - a c / ac-sqrt) / 2
-                ;
-                ; In this derivation I'm dropping the err^2 term
-                ; because it's too small to matter. The key is to
-                ; avoid overflow in the final formula. The most
-                ; important thing to remember here is that for c's and
-                ; ac-sqrt's exponents to have the opposite signs (and
-                ; thus for the final formula to result in overflow) we
-                ; must have a's and c's exponents to have opposite
-                ; signs, so a's and ac-sqrt's exponents must have the
-                ; same sign.
-                (if (or (and (> (abs a) 1.0) (> ac-sqrt 1.0))
-                        (and (< (abs a) 1.0) (< ac-sqrt 1.0)))
-                    (/ (- ac-sqrt (* (/ a ac-sqrt) c)) 2)
-                    (/ (- ac-sqrt (* a (/ c ac-sqrt))) 2))
-                term1))
-           ; This one has no worries about cancellation because it's
-           ; the sum of two positive values
-           (flsqrt term2)))]
-     [else
-      ; In this case hypot is perfect.
-      (flhypot (real->double-flonum b/2) ac-sqrt)]))
+    (if (and (exact? a) (exact? b) (exact? c))
+        (let ([d (- (* b/2 b/2) (* a c))])
+          (if (< d 0) +nan.0 (sqrt d)))
+        (quadratic-discriminant (fl a) (fl b/2) (fl c))))
 
   ; return list of solutions to a a x^2 + b x + c = 0
   (cond
@@ -107,9 +92,9 @@
     (list (- (/ b/2 a)))]
    ; Use the standard a/c swap trick to avoid cancellation
    [(< b 0)
-    (list (/ c (+ (- b/2) sqrt-d)) (/ (+ (- b/2) sqrt-d) a))]
+    (list (/ c (- sqrt-d b/2)) (/ (- sqrt-d b/2) a))]
    [else
-    (list (/ (- (- b/2) sqrt-d) a) (/ c (- (- b/2) sqrt-d)))]))
+    (list (/ (+ b/2 sqrt-d) (- a)) (/ (- c) (+ b/2 sqrt-d)))]))
 
 (: quadratic-integer-solutions : Real Real Real -> (Listof Integer))
 (define (quadratic-integer-solutions a b c)
