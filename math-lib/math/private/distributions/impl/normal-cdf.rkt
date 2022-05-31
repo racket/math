@@ -5,11 +5,14 @@ Rational Chebyshev Approximations for the Inverse of the Error Function
 J. M. Blair, C. A. Edwards and J. H. Johnson
 Mathematics of Computation, Vol. 30, No. 136 (Oct., 1976), pp. 827-830
 
-Cribbed from LGPL Fortran implementation in:
+Cribbed from Fortran implementation in:
 
 ALGORITHM 715: SPECFUN - A Portable FORTRAN Package of Special Function Routines and Test Drivers
 W. J. Cody
 ACM Transactions on Mathematical Software, Vol. 19 (1993), pp. 22-32
+
+This implementation is work done by the US Government (Argonne
+National Lab) and is therefore not copyrighted.
 
 Error is <= 3 ulps for both log and non-log functions
 |#
