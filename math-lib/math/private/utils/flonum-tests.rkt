@@ -444,8 +444,13 @@
            (parameterize ([current-max-ulp-error  ulps])
              (test-binary-flonum/error-fun 'flop flop bfop n)))))
 
+;; Several error bounds are very large here and below for fl2 operations.
+;; These were originally smaller thanks to using algorithms from crlibm,
+;; but those are now avoided for licensing reasons.
+;; See in particular flsqrt/error, fl2sqrt, fl2/, fl2sqr.
+
 (define-unary-flop/error-test test-flsqr/error flsqr/error bfsqr flonum/error-fun-ulps)
-(define-unary-flop/error-test test-flsqrt/error flsqrt/error bfsqrt flonum/error-fun-ulps)
+(define-unary-flop/error-test test-flsqrt/error flsqrt/error bfsqrt 1e20 #;flonum/error-fun-ulps)
 (define-unary-flop/error-test test-flexp/error flexp/error bfexp flexp/error-fun-ulps)
 (define-binary-flop/error-test test-fl+/error fl+/error bf+ flonum/error-fun-ulps)
 (define-binary-flop/error-test test-fl-/error fl-/error bf- flonum/error-fun-ulps)
@@ -473,8 +478,8 @@
              (test-binary-fl2-fun 'fl2op fl2op bfop n)))))
 
 (define-unary-fl2-test test-fl2abs fl2abs bfabs unary-fl2-fun-ulps)
-(define-unary-fl2-test test-fl2sqr fl2sqr bfsqr unary-fl2-fun-ulps)
-(define-unary-fl2-test test-fl2sqrt fl2sqrt bfsqrt unary-fl2-fun-ulps)
+(define-unary-fl2-test test-fl2sqr fl2sqr bfsqr 1e20 #;unary-fl2-fun-ulps)
+(define-unary-fl2-test test-fl2sqrt fl2sqrt bfsqrt 1e20 #;unary-fl2-fun-ulps)
 (define-unary-fl2-test test-fl2exp fl2exp bfexp fl2exp-fun-ulps)
 (define-unary-fl2-test test-fl2expm1 fl2expm1 bfexpm1 fl2exp-fun-ulps)
 (define-unary-fl2-test test-fl2log fl2log bflog fl2log-fun-ulps)
@@ -482,7 +487,7 @@
 (define-binary-fl2-test test-fl2+ fl2+ bf+ binary-fl2-fun-ulps)
 (define-binary-fl2-test test-fl2- fl2- bf- binary-fl2-fun-ulps)
 (define-binary-fl2-test test-fl2* fl2* bf* binary-fl2-fun-ulps)
-(define-binary-fl2-test test-fl2/ fl2/ bf/ binary-fl2-fun-ulps)
+(define-binary-fl2-test test-fl2/ fl2/ bf/ 1e20 #;binary-fl2-fun-ulps)
 
 ;; ===================================================================================================
 ;; Comprehensive test

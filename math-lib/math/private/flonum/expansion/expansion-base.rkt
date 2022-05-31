@@ -7,13 +7,37 @@ Jonathan Richard Shewchuk
 Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates
 Discrete & Computational Geometry 18(3):305–363, October 1997
 
-Other parts shamelessly stolen from crlibm (which is LGPL)
+and
+
+Tight and rigourous error bounds for basic building blocks of double-word arithmetic
+Mioara Joldes, Jean-Michel Muller, Valentina Popescu
+ACM Transactions on Mathematical Software, Association for Computing Machinery, 2017, 44 (2)
+https://hal.archives-ouvertes.fr/hal-01351529v3
+
+Note: Joldes et al provides algorithms that do not consider
+over/underflow, and thus some adaptations have been made for that. In
+most cases, that simply checks for overflow in intermediate
+computations and then produces a "simple" answer which is the
+one-double approximation using just the high-components and 0.0 as the
+second component.
+
+Note: better algorithms exist in crlibm but are under the LGPL so
+they're not used here.
+
 |#
 
 (require racket/math
          "../flonum-functions.rkt"
          "../flonum-bits.rkt"
          "../flonum-error.rkt"
+         (only-in "../flonum-error.rkt"
+                  ;; These names are used in Joldes et al.
+                  ;; One would hope that using the `fast-` variants
+                  ;; would be possible here, but it results in
+                  ;; inaccuracy/overflow.
+                  [fl+/error 2Sum]
+                  [fl+/error Fast2Sum]
+                  [fl*/error 2Prod])
          "../flonum-constants.rkt"
          "../utils.rkt")
 
@@ -166,18 +190,39 @@ Other parts shamelessly stolen from crlibm (which is LGPL)
 ;; ===================================================================================================
 ;; Addition and subtraction
 
+(: fl3->fl2 (Flonum Flonum Flonum -> (Values Flonum Flonum)))
+(define (fl3->fl2 e3 e2 e1)
+  (values e3 (fl+ e2 e1)))
+
+(: raw-fl2+fl (Flonum Flonum Flonum -> (Values Flonum Flonum Flonum)))
+(define (raw-fl2+fl e2 e1 b)
+  (let*-values ([(Q h1)  (fast-fl+/error b e1)]
+                [(h3 h2)  (fast-fl+/error Q e2)])
+    (values h3 h2 h1)))
+
+(: raw-fl2+ (Flonum Flonum Flonum Flonum -> (Values Flonum Flonum Flonum Flonum)))
+(define (raw-fl2+ e2 e1 f2 f1)
+  (let*-values ([(h3 h2 h1)  (raw-fl2+fl e2 e1 f1)]
+                [(h4 h3 h2)  (raw-fl2+fl h3 h2 f2)])
+    (values h4 h3 h2 h1)))
+
 (: fl2+ (case-> (Flonum Flonum Flonum -> (Values Flonum Flonum))
                 (Flonum Flonum Flonum Flonum -> (Values Flonum Flonum))))
-(define (fl2+ x2 x1 y2 [y1 0.0])
-  (define r (fl+ x2 y2))
-  (cond [(not (flrational? r))  (values r 0.0)]
-        [(and (fl= x2 0.0) (fl= y2 0.0))  (values r 0.0)]
-        [else
-         (define s (if ((flabs x2) . fl> . (flabs y2))
-                       (fl+ (fl+ (fl+ (fl- x2 r) y2) y1) x1)
-                       (fl+ (fl+ (fl+ (fl- y2 r) x2) x1) y1)))
-         (define z2 (fl+ r s))
-         (values z2 (fl+ (fl- r z2) s))]))
+;; Algorithm 6 from Joldes et al
+(define (fl2+ xh xl yh [yl 0.0])
+  (define r (fl+ xh yh))
+  (cond
+    ;; bail out in weird cases:
+    [(not (flrational? r)) (values r 0.0)]
+    [(and (fl= xh 0.0) (fl= yh 0.0)) (values r 0.0)]
+    [else
+     (let*-values ([(sh sl) (2Sum xh yh)]
+                   [(th tl) (2Sum xl yl)]
+                   [(c) (fl+ sl th)]
+                   [(vh vl) (Fast2Sum sh c)]
+                   [(w) (fl+ tl vl)]
+                   [(zh zl) (Fast2Sum vh w)])
+       (values zh zl))]))
 
 (: fl2- (case-> (Flonum Flonum Flonum -> (Values Flonum Flonum))
                 (Flonum Flonum Flonum Flonum -> (Values Flonum Flonum))))
@@ -237,110 +282,71 @@ Other parts shamelessly stolen from crlibm (which is LGPL)
 
 (: fl2* (case-> (Flonum Flonum Flonum -> (Values Flonum Flonum))
                 (Flonum Flonum Flonum Flonum -> (Values Flonum Flonum))))
-(define (fl2* x2 x1 y2 [y1 0.0])
-  (define z (fl* x2 y2))
-  (cond [(fl= z 0.0)  (values z 0.0)]
-        [(flsubnormal? z)  (values z 0.0)]
-        [(and (flrational? x2) (flrational? y2) (z . fl>= . -inf.0) (z . fl<= . +inf.0))
-         (define dx (near-pow2 x2))
-         (define dy (near-pow2 y2))
-         (define d (fl* dx dy))
-         (define d? (and (d . fl> . 0.0) (d . fl< . +inf.0)))
-         (let* ([x2  (fl/ x2 dx)]
-                [x1  (fl/ x1 dx)]
-                [y2  (fl/ y2 dy)]
-                [y1  (fl/ y1 dy)]
-                [up  (fl* x2 (fl+ 1.0 (flexpt 2.0 27.0)))]
-                [vp  (fl* y2 (fl+ 1.0 (flexpt 2.0 27.0)))]
-                [u1  (fl+ (fl- x2 up) up)]
-                [v1  (fl+ (fl- y2 vp) vp)]
-                [u2  (fl- x2 u1)]
-                [v2  (fl- y2 v1)]
-                [m2  (fl* x2 y2)]
-                [m1  (fl+ (fl+ (fl+ (fl+ (fl+ (fl- (fl* u1 v1) m2)
-                                              (fl* u1 v2))
-                                         (fl* u2 v1))
-                                    (fl* u2 v2))
-                               (fl* x2 y1))
-                          (fl* x1 y2))]
-                [z2  (fl+ m2 m1)]
-                [z1  (fl+ (fl- m2 z2) m1)]
-                [z2  (if d? (fl* z2 d) (fl* (fl* z2 dx) dy))])
-           (values z2 (if (flrational? z2) (if d? (fl* z1 d) (fl* (fl* z1 dx) dy)) 0.0)))]
-        [else
-         (values z 0.0)]))
+(define (fl2* xh xl yh [yl 0.0])
+  (define z (fl* xh yh))
+  (cond [(fl= 0.0 z) (values z 0.0)]
+        [(flsubnormal? z) (values z 0.0)]
+        [(and (flrational? xh) (flrational? yh) (z . fl> . -inf.0) (z . fl< . +inf.0))
+         ;; Algorithm 10 from Joldes et al
+         (let*-values ([(ch cl1) (fl*/error xh yh)]
+                       [(tl1) (fl* xh yl)]
+                       [(tl2) (fl* xl yh)]
+                       [(cl2) (fl+ tl1 tl2)]
+                       [(cl3) (fl+ cl1 cl2)])
+           (if (or (flinfinite? tl1) (flinfinite? tl2))
+               (values z 0.0)
+               (Fast2Sum ch cl3)))]
+        [else (values z 0.0)]))
 
 (: fl2sqr (case-> (Flonum -> (Values Flonum Flonum))
                   (Flonum Flonum -> (Values Flonum Flonum))))
-;; Derived from fl2*
 (define fl2sqr
   (case-lambda
     [(x)  (flsqr/error x)]
-    [(x2 x1)
-     (define z (fl* x2 x2))
-     (cond [(fl= z 0.0)  (values z 0.0)]
-           [(flsubnormal? z)  (values z 0.0)]
-           [(and (flrational? x2) (z . fl>= . -inf.0) (z . fl<= . +inf.0))
-            (define dx (near-pow2 x2))
-            (define d (fl* dx dx))
-            (define d? (and (d . fl> . 0.0) (d . fl< . +inf.0)))
-            (let* ([x2  (fl/ x2 dx)]
-                   [x1  (fl/ x1 dx)]
-                   [up  (fl* x2 (fl+ 1.0 (flexpt 2.0 27.0)))]
-                   [u1  (fl+ (fl- x2 up) up)]
-                   [u2  (fl- x2 u1)]
-                   [m2  (fl* x2 x2)]
-                   [m1  (fl+ (fl+ (fl+ (fl- (fl* u1 u1) m2)
-                                       (fl* 2.0 (fl* u1 u2)))
-                                  (fl* u2 u2))
-                             (fl* 2.0 (fl* x2 x1)))]
-                   [z2  (fl+ m2 m1)]
-                   [z1  (fl+ (fl- m2 z2) m1)]
-                   [z2  (if d? (fl* z2 d) (fl* (fl* z2 dx) dx))])
-              (values z2 (if (flrational? z2) (if d? (fl* z1 d) (fl* (fl* z1 dx) dx)) 0.0)))]
-           [else
-            (values z 0.0)])]))
+    [(x2 x1) (fl2* x2 x1 x2 x1)]))
 
 (: fl2/ (case-> (Flonum Flonum Flonum -> (Values Flonum Flonum))
                 (Flonum Flonum Flonum Flonum -> (Values Flonum Flonum))))
-(define (fl2/ x2 x1 y2 [y1 0.0])
-  (define z (fl/ x2 y2))
-  (cond [(and (flrational? z) (not (fl= z 0.0)) (flrational? y2))
-         (define d (near-pow2/div x2 y2))
-         (let*-values ([(x2 x1)  (values (fl/ x2 d) (fl/ x1 d))]
-                       [(y2 y1)  (values (fl/ y2 d) (fl/ y1 d))]
-                       [(c2)  (fl/ x2 y2)]
-                       [(u2 u1)  (fl*/error c2 y2)]
-                       [(c1)  (fl/ (fl- (fl+ (fl- (fl- x2 u2) u1) x1) (fl* c2 y1)) y2)]
-                       [(z2)  (fl+ c2 c1)])
-           (values z2 (if (flrational? z2) (fl+ (fl- c2 z2) c1) 0.0)))]
-        [else
-         (values z 0.0)]))
+(define fl2/
+  (lambda
+    (xh xl yh [yl 0.0])
+     ;; Algorithm 17 from Joldes et al
+    (define z (fl/ xh yh))
+    (cond [(and (flrational? z) (not (fl= z 0.0)) (flrational? yh))
+           (let*-values ([(th) (fl/ xh yh)]
+                         [(rh rl) (fl2* yh yl th)]
+                         [(pih) (fl- xh rh)]
+                         [(dl) (fl- xl rl)]
+                         [(d) (fl+ pih dl)]
+                         [(tl) (fl/ d yh)])
+             (if (and (flrational? rh) (flrational? rl) (flrational? tl))
+                 (Fast2Sum th tl)
+                 (values th 0.0)))]
+          [else (values z 0.0)])))
 
 ;; ===================================================================================================
 ;; Square roots
 
+;; One-flonum estimate followed by one Newton's method iteration
+;; This could be a little faster if `y' were split only once
+(: flsqrt/error (Flonum -> (Values Flonum Flonum)))
+(define (flsqrt/error x)
+  (let*-values ([(y)  (flsqrt x)]
+                [(z2 z1)  (flsqr/error y)]
+                [(dy2 dy1)  (fl2+ (- z2) (- z1) x)]
+                [(dy2 dy1)  (fl2/ dy2 dy1 y)])
+    (if (and (flrational? dy2) (flrational? dy1))
+        (fl2+ (* 0.5 dy2) (* 0.5 dy1) y)
+        (values y 0.0))))
+
 (: fl2sqrt (case-> (Flonum -> (Values Flonum Flonum))
                    (Flonum Flonum -> (Values Flonum Flonum))))
-;; One-flonum estimate followed by one Newton's method iteration
 (define (fl2sqrt x2 [x1 0.0])
-  (cond [(and (flrational? x2) (not (fl= x2 0.0)))
-         (define-values (d^2 d)
-           (cond [(x2 . fl<= . +max-subnormal.hi)  (values (flexpt 2.0 -104.0)
-                                                           (flexpt 2.0 -52.0))]
-                 [(x2 . fl> . 1e300)  (values (flexpt 2.0 104.0)
-                                              (flexpt 2.0 52.0))]
-                 [else  (values 1.0 1.0)]))
-         (let*-values ([(x2 x1)  (values (fl/ x2 d^2) (fl/ x1 d^2))]
-                       [(y)  (flsqrt (fl+ x2 x1))]
-                       [(z2 z1)  (fast-flsqr/error y)]
-                       [(dy2 dy1)  (fl2- x2 x1 z2 z1)]
-                       [(dy2 dy1)  (fl2/ dy2 dy1 y)]
-                       [(y2 y1)  (fl2+ (fl* 0.5 dy2) (fl* 0.5 dy1) y)]
-                       [(y2)  (fl* y2 d)])
-           (values y2 (if (flrational? y2) (fl* y1 d) 0.0)))]
-        [else
-         (values (flsqrt x2) 0.0)]))
-
-(: flsqrt/error (Flonum -> (Values Flonum Flonum)))
-(define (flsqrt/error x) (fl2sqrt x 0.0))
+  (let*-values ([(y)  (flsqrt (fl+ x1 x2))]
+                [(z2 z1)  (flsqr/error y)]
+                [(dy2 dy1)  (fl2- x2 x1 z2 z1)]
+                [(dy2 dy1)  (fl2/ dy2 dy1 y)]
+                [(r2 r1) (fl2+ (* 0.5 dy2) (* 0.5 dy1) y)])
+    (if (and (flrational? dy2) (flrational? dy1))
+        (values r2 r1)
+        (values (flsqrt x2) 0.0))))
