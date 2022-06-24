@@ -823,7 +823,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
    [(not (bfinteger? x)) #f]
    [(> exp 0) #t]
    [(= sig 0) #t]
-   [(> (- exp) (log (abs sig) 2)) #t] ; Avoid constructing large "1"s
+   [(> (- exp) (ceiling (log (abs sig) 2))) #t] ; Avoid constructing large "1"s
    [else (= (bitwise-and (abs sig) (expt 2 (- exp))) 0)]))
 
 (define (bfodd? x) (and (bfinteger? x) (not (bfeven? x))))

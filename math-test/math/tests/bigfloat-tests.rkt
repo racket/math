@@ -180,6 +180,10 @@
 (for ([i (in-range -20 20)])
   (check-pred (if (even? i) bfeven? bfodd?) (bf i)))
 
+(parameterize ([bf-precision 8000])
+  (for ([i (in-range -20 20)])
+    (check-pred (if (even? i) bfeven? bfodd?) (bf i))))
+
 ;; Check that bfeven? is fast (<10ms) for large inputs
 (define t (current-inexact-milliseconds))
 (check-true (bfeven? (bfstep +inf.bf -1)))
