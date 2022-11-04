@@ -280,6 +280,11 @@
               (array #[#[#[1.0 0.0] #[0.0 0.0]]
                        #[#[0.0 0.0] #[0.0 1.0]]]))
 
+(check-equal? (let ([count 0])
+                (build-array #(1) (λ (i)(set! count (+ count 1)) i))
+                count)
+              1)
+
 ;; ---------------------------------------------------------------------------------------------------
 ;; Pointwise
 ;; Not much to test here because most pointwise ops are defined by the same two lifts
