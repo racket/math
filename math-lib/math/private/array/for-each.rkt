@@ -140,5 +140,6 @@
           [else
            (define: js0 : Indexes (make-vector dims 0))
            (define: vs : (Vectorof A) (make-vector size (g js0 0)))
-           (for-each-array+data-index ds (λ (js j) (unsafe-vector-set! vs j (g js j))))
+           (for-each-array+data-index ds (λ (js j)
+                                           (unless (= j 0) (unsafe-vector-set! vs j (g js j)))))
            vs])))
