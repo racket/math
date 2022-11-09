@@ -814,17 +814,8 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
 (define (bfnegative? x)
   (bflt? x (force 0.bf)))
   
-;; The `bfodd?` and `bfeven?` in math/bigfloat (as of Racket 7.7) is super slow
 (define (bfeven? x)
-  (define-values (sig exp) (bigfloat->sig+exp x))
-  ; x = sig << exp
-  ; x | 1 = (sig << exp) | 1 = sig | 1 << -exp
-  (cond
-   [(not (bfinteger? x)) #f]
-   [(> exp 0) #t]
-   [(= sig 0) #t]
-   [(> (- exp) (ceiling (log (abs sig) 2))) #t] ; Avoid constructing large "1"s
-   [else (= (bitwise-and (abs sig) (expt 2 (- exp))) 0)]))
+  (and (bfinteger? x) (bfinteger? (bfshift x -1))))
 
 (define (bfodd? x) (and (bfinteger? x) (not (bfeven? x))))
 
@@ -899,12 +890,16 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
   (mpfr-nextbelow y)
   y)
 
-(define (bfshift x n)
-  (unless (fixnum? n) (raise-argument-error 'bfshift "Fixnum" 1 x n))
-  (cond [(bfzero? x)  x]
-        [(not (bfrational? x))  x]
-        [else  (define-values (sig exp) (bigfloat->sig+exp x))
-               (bf sig (+ n exp))]))
+; Inline an unusual FFI signature redefinition
+(define bfshift
+  (let ([cfun (get-mpfr-fun 'mpfr_mul_2si (_fun _mpfr-pointer _mpfr-pointer _long _rnd_t -> _int))])
+    (procedure-rename
+     (λ (x n)
+       (unless (fixnum? n)
+         (raise-argument-error 'bfshift "Fixnum" 1 x n))
+       (define y (new-mpfr (bigfloat-precision x)))
+       (cfun y x n))
+     'bfshift)))
 
 (define (infinite-ordinal p)
   (+ 1 (arithmetic-shift #b1111111111111111111111111111111 (- p 1))))
