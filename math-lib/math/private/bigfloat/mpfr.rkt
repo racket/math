@@ -890,16 +890,17 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
   (mpfr-nextbelow y)
   y)
 
+
+(define mpfr-mul-2si
+  (get-mpfr-fun 'mpfr_mul_2si (_fun _mpfr-pointer _mpfr-pointer _exp_t _rnd_t -> _int)))
+
 ; Inline an unusual FFI signature redefinition
-(define bfshift
-  (let ([cfun (get-mpfr-fun 'mpfr_mul_2si (_fun _mpfr-pointer _mpfr-pointer _long _rnd_t -> _int))])
-    (procedure-rename
-     (λ (x n)
-       (unless (fixnum? n)
-         (raise-argument-error 'bfshift "Fixnum" 1 x n))
-       (define y (new-mpfr (bigfloat-precision x)))
-       (cfun y x n))
-     'bfshift)))
+(define (bfshift x n)
+  (unless (fixnum? n)
+    (raise-argument-error 'bfshift "Fixnum" 1 x n))
+  (define y (new-mpfr (bigfloat-precision x)))
+  (mpfr-mul-2si y x n (bf-rounding-mode))
+  y)
 
 (define (infinite-ordinal p)
   (+ 1 (arithmetic-shift #b1111111111111111111111111111111 (- p 1))))
