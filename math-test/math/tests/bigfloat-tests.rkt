@@ -123,6 +123,13 @@
     (check-equal? (bfprev 0.bf) -min.bf)
     ))
 
+(check-equal? (bfshift 0.bf -1) 0.bf)
+(check-equal? (bigfloat-signbit (bfshift -0.bf -1)) (bigfloat-signbit -0.bf))
+(check-equal? (bfshift (bfnext 0.bf) -1) 0.bf)
+(check-equal? (bfshift (bfprev +inf.bf) +1) +inf.bf)
+(check-equal? (bfshift +inf.bf -1) +inf.bf)
+
+
 ;; Integer conversion
 
 (check-equal? (bigfloat->integer (integer->bigfloat 0)) 0)
