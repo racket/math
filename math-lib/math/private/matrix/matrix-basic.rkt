@@ -35,6 +35,9 @@
  ;; Embiggenment
  matrix-augment
  matrix-stack
+;; Setters
+ matrix-set-column
+ matrix-set-row
  ;; Inner product space
  matrix-1norm
  matrix-2norm
@@ -191,6 +194,17 @@
                        (format-matrices/error as))])]))
 
 ;; ===================================================================================================
+;; Setters
+
+(: matrix-set-column (All (A) (Matrix A) (Matrix A) Integer -> (Matrix A)))
+(define (matrix-set-column M new-col idx)
+  (matrix-augment (list-set (matrix-cols M) idx new-col)))
+
+(: matrix-set-row (All (A) (Matrix A) (Matrix A) Integer -> (Matrix A)))
+(define (matrix-set-row M new-row idx)
+  (matrix-stack (list-set (matrix-rows M) idx new-row)))
+
+;; ===================================================================================================
 ;; Inner product space (entrywise norm)
 
 (: nonstupid-magnitude (case-> (Flonum -> Nonnegative-Flonum)
@@ -327,7 +341,7 @@
      (array-strict! M)
      (define x (matrix-norm M p))
      (cond [(and (zero? x) (exact? x))  (fail)]
-           [else  (matrix-scale M (/ x))])]))  
+           [else  (matrix-scale M (/ x))])]))
 
 ;; ===================================================================================================
 ;; Operators
@@ -471,7 +485,7 @@
   (cond [(negative? eps)  (raise-argument-error 'matrix-rows-orthogonal? "Nonnegative-Real" 1 M eps)]
         [else  (parameterize ([array-strictness #f])
                  (pairwise-orthogonal? (matrix-rows M) eps))]))
-         
+
 
 (: matrix-cols-orthogonal? (case-> ((Matrix Number) -> Boolean)
                                    ((Matrix Number) Real -> Boolean)))
