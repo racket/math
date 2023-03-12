@@ -360,32 +360,32 @@
   (begin
     (for: ([a  (in-list nonmatrices)])
       (check-exn exn:fail:contract? (λ () (matrix* a (matrix [[1]])))))
-    
+
     (check-equal? (matrix* (matrix [[1 2 3] [4 5 6] [7 8 9]])
                            (matrix [[1 2 3] [4 5 6] [7 8 9]]))
                   (matrix [[30 36 42] [66 81 96] [102 126 150]]))
-    
+
     (check-equal? (matrix* (row-matrix [1 2 3 4])
                            (col-matrix [1 2 3 4]))
                   (matrix [[30]]))
-    
+
     (check-equal? (matrix* (col-matrix [1 2 3 4])
                            (row-matrix [1 2 3 4]))
                   (matrix [[1  2  3  4]
                            [2  4  6  8]
                            [3  6  9 12]
                            [4  8 12 16]]))
-    
+
     (check-equal? (matrix* (matrix [[3]]) (matrix [[7]]))
                   (matrix [[21]]))
-    
+
     ;; Left/right identity
     (let ([m  (random-matrix 2 2)])
       (check-equal? (matrix* (identity-matrix 2) m)
                     m)
       (check-equal? (matrix* m (identity-matrix 2))
                     m))
-    
+
     ;; Shape
     (let ([m0  (random-matrix 4 5)]
           [m1  (random-matrix 5 2)]
@@ -399,9 +399,9 @@
       (check-equal? (let-values ([(m n)  (matrix-shape (matrix* m0 m1 m2))])
                       (list m n))
                     (list 4 10)))
-    
+
     (check-exn exn:fail? (λ () (matrix* (random-matrix 1 2) (random-matrix 3 2))))
-    
+
     ;; Associativity
     (let ([m0  (random-matrix 4 5)]
           [m1  (random-matrix 5 2)]
@@ -587,6 +587,23 @@
 (for: ([a  (in-list nonmatrices)])
   (check-exn exn:fail:contract? (λ () (matrix-stack (list a))))
   (check-exn exn:fail:contract? (λ () (matrix-stack (list (matrix [[1]]) a)))))
+
+;; ===================================================================================================
+;; Setters
+
+(let ([sys (matrix [[1 2 3]
+                    [4 5 6]
+                    [7 8 9]])]
+      [new-col (col-matrix [-1 -2 -3])])
+  (check-equal? (matrix-set-column sys new-col 0)
+                (array #[#[-1 2 3] #[-2 5 6] #[-3 8 9]])))
+
+(let ([sys (matrix [[1 2 3]
+                    [4 5 6]
+                    [7 8 9]])]
+      [new-row (row-matrix [-1 -2 -3])])
+  (check-equal? (matrix-set-row sys new-row 0)
+                (array #[#[-1 -2 -3] #[4 5 6] #[7 8 9]])))
 
 ;; ===================================================================================================
 ;; Inner product space
@@ -1027,7 +1044,7 @@
 ;; Tests not yet converted to rackunit
 
 (begin
-  
+
   (begin
     "matrix-operations.rkt"
     (list 'column-project
@@ -1037,12 +1054,12 @@
     (list 'projection-on-orthogonal-basis
           (equal? (projection-on-orthogonal-basis #(3 -2 2) (list #(-1 0 2) #( 2 5 1)))
                   (col-matrix [-1/3 -1/3 1/3]))
-          (equal? (projection-on-orthogonal-basis 
+          (equal? (projection-on-orthogonal-basis
                    (col-matrix [3 -2 2]) (list #(-1 0 2) (col-matrix [2 5 1])))
                   (col-matrix [-1/3 -1/3 1/3])))
     (list 'projection-on-orthonormal-basis
-          (equal? (projection-on-orthonormal-basis 
-                   #(1 2 3 4) 
+          (equal? (projection-on-orthonormal-basis
+                   #(1 2 3 4)
                    (list (matrix-scale (col-matrix [ 1  1  1  1]) 1/2)
                          (matrix-scale (col-matrix [-1  1 -1  1]) 1/2)
                          (matrix-scale (col-matrix [ 1 -1 -1  1]) 1/2)))
@@ -1065,7 +1082,7 @@
       (define 4*e2 (matrix-scale e2 4))
       (begin
         (list 'matrix-2d-rotation
-              (<= (matrix-norm (matrix- (matrix* (matrix-2d-rotation (/ pi 2)) e1) e2 )) epsilon.0) 
+              (<= (matrix-norm (matrix- (matrix* (matrix-2d-rotation (/ pi 2)) e1) e2 )) epsilon.0)
               (<= (matrix-norm (matrix- (matrix* (matrix-2d-rotation (/ pi 2)) e2) -e1)) epsilon.0))
         (list
          'matrix-2d-scaling
