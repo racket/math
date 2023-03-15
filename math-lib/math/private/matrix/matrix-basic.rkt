@@ -36,7 +36,7 @@
  matrix-augment
  matrix-stack
 ;; Setters
- matrix-set-column
+ matrix-set-col
  matrix-set-row
  ;; Inner product space
  matrix-1norm
@@ -196,12 +196,12 @@
 ;; ===================================================================================================
 ;; Setters
 
-(: matrix-set-column (All (A) (Matrix A) (Matrix A) Integer -> (Matrix A)))
-(define (matrix-set-column M new-col idx)
+(: matrix-set-col (All (A) (Matrix A) Integer (Matrix A) -> (Matrix A)))
+(define (matrix-set-col M idx new-col)
   (matrix-augment (list-set (matrix-cols M) idx new-col)))
 
-(: matrix-set-row (All (A) (Matrix A) (Matrix A) Integer -> (Matrix A)))
-(define (matrix-set-row M new-row idx)
+(: matrix-set-row (All (A) (Matrix A) Integer (Matrix A) -> (Matrix A)))
+(define (matrix-set-row M idx new-row)
   (matrix-stack (list-set (matrix-rows M) idx new-row)))
 
 ;; ===================================================================================================

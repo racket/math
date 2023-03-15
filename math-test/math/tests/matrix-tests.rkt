@@ -595,14 +595,14 @@
                     [4 5 6]
                     [7 8 9]])]
       [new-col (col-matrix [-1 -2 -3])])
-  (check-equal? (matrix-set-column sys new-col 0)
+  (check-equal? (matrix-set-col sys 0 new-col)
                 (array #[#[-1 2 3] #[-2 5 6] #[-3 8 9]])))
 
 (let ([sys (matrix [[1 2 3]
                     [4 5 6]
                     [7 8 9]])]
       [new-row (row-matrix [-1 -2 -3])])
-  (check-equal? (matrix-set-row sys new-row 0)
+  (check-equal? (matrix-set-row sys 0 new-row)
                 (array #[#[-1 -2 -3] #[4 5 6] #[7 8 9]])))
 
 ;; ===================================================================================================

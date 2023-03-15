@@ -525,8 +525,8 @@ in list must have the same number of columns.
                  (matrix-stack (list M0 M1 M2))]
 }
 
-@deftogether[(@defproc[(matrix-set-col [M (Matrix A)] [new-col (Matrix A)] [idx Integer]) (Matrix A)]
-              @defproc[(matrix-set-row [M (Matrix A)] [new-row (Matrix A)] [idx Integer]) (Matrix A)])]{
+@deftogether[(@defproc[(matrix-set-col [M (Matrix A)] [idx Integer] [new-col (Matrix A)]) (Matrix A)]
+              @defproc[(matrix-set-row [M (Matrix A)] [idx Integer] [new-row (Matrix A)]) (Matrix A)])]{
 
 The function @racket[matrix-set-col] returns a matrix whose @racket[idx]th column is @racket[new-col].
 The function @racket[matrix-set-row] returns a matrix whose @racket[idx]th row is @racket[new-row].
@@ -539,8 +539,8 @@ The function @racket[matrix-set-row] returns a matrix whose @racket[idx]th row i
 		 (define new-col (col-matrix [-1 -2 -3]))
 		 (define new-row (row-matrix [-1 -2 -3]))
 
-		 (matrix-set-column mat new-col 0)
-		 (matrix-set-row mat new-row 0)]
+		 (matrix-set-col mat 0 new-col)
+		 (matrix-set-row mat 0 new-row)]
 }
 
 @deftogether[
