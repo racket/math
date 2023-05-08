@@ -121,6 +121,13 @@ For factorial-like functions that return sensible values for non-integers, see
 @racket[gamma] and @racket[beta].
 }
 
+@deftogether[(@defproc[(fllog+ [a Flonum] [b Flonum]) Flonum]
+              @defproc[(fllog-quotient [a Flonum] [b Flonum]) Flonum]
+              @defproc[(fllog-hypot [a Flonum] [b Flonum]) Flonum])]{
+Like @racket[(fllog (+ a b))] , @racket[(fllog (/ a b))] and @racket[(fllog (flhypot a b))]
+but avoiding over/underflow and accurate when the argument to @racket[fllog] is near 1
+(within 1 @tech{ulp}).}
+
 @deftogether[(@defproc[(fllog-factorial [n Flonum]) Flonum]
               @defproc[(fllog-binomial [n Flonum] [k Flonum]) Flonum]
               @defproc[(fllog-permutations [n Flonum] [k Flonum]) Flonum]
