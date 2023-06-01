@@ -89,6 +89,8 @@
 
   ; return list of solutions to a a x^2 + b x + c = 0
   (cond
+   [(zero? a)
+    (list (- (/ c b)))]
    [(nan? sqrt-d) 
     '()]
    [(zero? sqrt-d)
