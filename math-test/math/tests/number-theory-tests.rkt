@@ -22,6 +22,10 @@
 ; one root.
 (define sqrt-8-rounded-up (sqrt 8.0000000000000016))
 (check-equal? (length (quadratic-solutions 1 sqrt-8-rounded-up 2)) 2)
+; See issue #83
+(check-equal? (map exact->inexact (quadratic-solutions 5702887 -7049156 2178309))
+              (quadratic-solutions 5702887.0 -7049156.0 2178309.0))
+
 (check-equal? (quadratic-integer-solutions 1 0 -4) '(-2 2))
 (check-equal? (quadratic-integer-solutions 1 0 +4) '())
 (check-equal? (quadratic-integer-solutions 1 0 0)  '(0))
