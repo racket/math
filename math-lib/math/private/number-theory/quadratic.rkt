@@ -56,11 +56,11 @@
         ;; Need to compute err(x) ~ (a b / x - x) / 2
         (if (equal? (> aa 1) (> x 1)) ; In this case do a / x first
             (let* ([a/x (/ aa x)]
-                   [a/x.e (flfma a/x x (- aa))]
+                   [a/x.e (/ (flfma a/x x (- aa)) x)]
                    [ac/x (* a/x ac)])
               (values ac/x (+ (flfma a/x (- ac) ac/x) (* a/x.e ac))))
             (let* ([c/x (/ ac x)]
-                   [c/x.e (flfma c/x x (- ac))]
+                   [c/x.e (/ (flfma c/x x (- ac)) x)]
                    [ac/x (* aa c/x)])
               (values ac/x (+ (flfma (- aa) c/x ac/x) (* c/x.e a))))))
 
