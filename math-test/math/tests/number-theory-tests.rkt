@@ -13,6 +13,9 @@
 (let ([roots (sort (quadratic-solutions 1e-8 1 1e-8) <)])
   (check-= (first roots) -99999999.99999999 1e-7)
   (check-= (second roots) -1.0000000000000002e-08 1e-23))
+; See #81
+(check-equal? (quadratic-solutions 0 3 4) '(-4/3))
+(check-equal? (quadratic-solutions 0.0 3.0 4.0) '(-1.3333333333333333))
 (check-equal? (quadratic-solutions 1e200 2e200 1e200) '(-1.0))
 (check-equal? (quadratic-solutions 1e200 -2e200 1e200) '(1.0))
 (check-equal? (quadratic-solutions 1e-200 2e-200 1e-200) '(-1.0))
