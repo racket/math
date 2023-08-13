@@ -272,13 +272,65 @@ Approximations:
                   [(and (x . fl> . -4.5) (x . fl< . 4.5))  (flgamma-taylor x)]
                   [else  (flgamma-lanczos x)])))]))
 
+(define √2π 2.5066282746310005024157652848110)
+(: complex-gamma (Float-Complex -> Float-Complex))
+(define (complex-gamma z+1)
+  (cond
+    [(or (= z+1 2)(= z+1 1)) 1.+0.i]
+    [else
+     (define neg? (< (real-part z+1)0))
+     (define z (- (if neg? (- z+1) z+1) 1))
+     (define zh (+ z 0.5))
+     (define zgh (+ zh lanczos-complex-g))
+     (define zp (expt zgh (* 0.5 zh)))
+     (define zzz (* zp (exp (- zgh)) zp))
+
+     (define m
+       (+ (car lanczos-complex-c)
+          (for/fold ([s : Float-Complex 0.0+0.0i])
+                    ([a (in-list (cdr lanczos-complex-c))]
+                     [i (in-naturals 1)])
+            (+ s (/ a (+ z i))))))
+
+     ;(println m)(println zp)(println zgh)(println zzz)
+     (define (mm [z : Float-Complex])(or (infinite? (real-part z))(infinite? (imag-part z))))
+     (cond
+       [(or (mm zh)(mm zgh)) +nan.0+nan.0i]
+       [(or (mm zp)(mm zzz))
+        (cond
+          [neg? 0.0+0.0i]
+          [else
+           (define ans (* (* √2π m)
+                          (make-polar 1 (+ (* (magnitude zgh) (sin (angle zgh)))
+                                           (* 2 (angle zgh) (magnitude zh) (sin (+ (* .5 pi) (angle zh)))))) ))
+           (define α (angle ans))
+           (cond
+             [(< 0.0        α (* 0.5 pi))      +inf.0+inf.0i]
+             [(< (* 0.5 pi) α pi)              -inf.0+inf.0i]
+             [(< (- pi)     α (* -.5 pi))      -inf.0-inf.0i]
+             [(< (* -.5 pi) α 0.0)             +inf.0-inf.0i]
+             [(= 0.0 α)                        +inf.0+0.0i]
+             [(= (* 0.5 pi) α)                 0.0+inf.0i]
+             [(or (= pi α)(= (- pi) α))        -inf.0+0.0i]
+             [(= (* -.5 pi) α)                 0.0-inf.0i]
+             [else (error "complex-gamma: angle outside of range [-π , π]")])])]
+       ;[(mm m) (error "todo")]
+       [else
+        (define ans (* (* √2π m) zzz))
+        (if neg?
+            (/ (- pi) ans z+1 (sin (* pi z+1)))
+            ans)])]))
+
 (: gamma (case-> (One -> One)
                  (Integer -> Positive-Integer)
                  (Float -> Float)
-                 (Real -> (U Positive-Integer Flonum))))
-(define (gamma x)
+                 (Real -> (U Positive-Integer Flonum))
+                 (Number -> Number)))
+(define (gamma z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
   (cond [(double-flonum? x)  (flgamma x)]
         [(exact-integer? x)
          (cond [(x . > . 0)  (factorial (- x 1))]
                [else  (raise-argument-error 'gamma "Real, not Zero or Negative-Integer" x)])]
-        [else  (flgamma (fl x))]))
+        [(real? x)  (flgamma (fl x))]
+        [else (complex-gamma (number->float-complex z))]))

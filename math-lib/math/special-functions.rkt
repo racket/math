@@ -9,19 +9,23 @@
          (except-in "private/functions/lambert.rkt" lambert)
          (except-in "private/functions/zeta.rkt" eta zeta)
          (except-in "private/functions/hurwitz-zeta.rkt" hurwitz-zeta)
-         "private/functions/psi.rkt"
+         (except-in "private/functions/psi.rkt" psi0)
          "private/functions/incomplete-gamma.rkt"
          "private/functions/incomplete-beta.rkt"
          "private/functions/stirling-error.rkt"
-         "private/functions/fresnel.rkt")
+         (except-in "private/functions/fresnel.rkt" Fresnel-S Fresnel-RS Fresnel-C Fresnel-RC))
 
 (require/untyped-contract
  "private/functions/gamma.rkt"
- [gamma  (Real -> Real)])
+ [gamma  (Number -> Number)])
 
 (require/untyped-contract
  "private/functions/log-gamma.rkt"
- [log-gamma  (Real -> Real)])
+ [log-gamma  (Number -> Number)])
+
+(require/untyped-contract
+ "private/functions/psi.rkt"
+ [psi0  (Number -> Number)])
 
 (require/untyped-contract
  "private/functions/beta.rkt"
@@ -30,8 +34,15 @@
 
 (require/untyped-contract
  "private/functions/erf.rkt"
- [erf   (Real -> Real)]
+ [erf   (Number -> Number)]
  [erfc  (Real -> Real)])
+(require/untyped-contract
+ "private/functions/fresnel.rkt"
+ [Fresnel-S  (Number -> Number)]
+ [Fresnel-RS (Number -> Number)]
+ [Fresnel-C  (Number -> Number)]
+ [Fresnel-RC (Number -> Number)])
+
 
 (require/untyped-contract
  "private/functions/lambert.rkt"
@@ -61,9 +72,11 @@
           "private/functions/fresnel.rkt")
          gamma
          log-gamma
+         psi0
          beta log-beta
          erf erfc
          lambert
          eta zeta
          hurwitz-zeta
-         )
+         Fresnel-S Fresnel-RS
+         Fresnel-C Fresnel-RC)
