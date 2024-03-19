@@ -687,7 +687,7 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
  [bfbesy0 'mpfr_y0]
  [bfbesy1 'mpfr_y1]
  [bfrint 'mpfr_rint]
- [bfround 'mpfr_rint_round]
+ [bfround 'mpfr_rint_roundeven]
  [bffloor 'mpfr_rint_floor]
  [bfceiling 'mpfr_rint_ceil]
  [bftruncate 'mpfr_rint_trunc]
