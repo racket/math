@@ -505,3 +505,10 @@
       (unless (equal? y y0)
         (printf "f = ~a  x = ~v  y = ~v~n" f x y))
       (check-equal? y0 y))))
+
+;; Rounding near infinity
+
+(define x (bfprev +inf.bf))
+(check-false (bfinfinite?
+              (parameterize ([bf-precision 40] [bf-rounding-mode 'down])
+                (bfround x))))
