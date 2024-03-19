@@ -687,6 +687,10 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
  [bfbesy0 'mpfr_y0]
  [bfbesy1 'mpfr_y1]
  [bfrint 'mpfr_rint]
+ [bfround 'mpfr_rint_round]
+ [bffloor 'mpfr_rint_floor]
+ [bfceiling 'mpfr_rint_ceil]
+ [bftruncate 'mpfr_rint_trunc]
  [bffrac 'mpfr_frac]
  [bfcopy 'mpfr_set])
 
@@ -698,13 +702,9 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
         [(= 0 (bigfloat-signbit x))  (force 1.bf)]
         [else  (force -1.bf)]))
 
-(define (bfround x)
-  (parameterize ([bf-rounding-mode  'nearest])
-    (bfrint x)))
-
-(provide bfsgn bfround)
+(provide bfsgn)
 (begin-for-syntax
-  (set! 1ary-funs (list* #'bfsgn #'bfround 1ary-funs)))
+  (set! 1ary-funs (list* #'bfsgn 1ary-funs)))
 
 (define mpfr-fac-ui (get-mpfr-fun 'mpfr_fac_ui (_fun _mpfr-pointer _ulong _rnd_t -> _int)))
 
@@ -726,24 +726,6 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
   y)
 
 (provide bfsum)
-
-(define-syntax-rule (provide-1ary-fun/noround name c-name)
-  (begin
-    (define cfun (get-mpfr-fun c-name (_fun _mpfr-pointer _mpfr-pointer _rnd_t -> _int)))
-    (define (name x)
-      (define y (new-mpfr (bf-precision)))
-      (cfun y x (bf-rounding-mode))
-      y)
-    (provide name)
-    (begin-for-syntax (set! 1ary-funs (cons #'name 1ary-funs)))))
-
-(define-syntax-rule (provide-1ary-funs/noround [name c-name] ...)
-  (begin (provide-1ary-fun/noround name c-name) ...))
-
-(provide-1ary-funs/noround
- [bfceiling 'mpfr_ceil]
- [bffloor 'mpfr_floor]
- [bftruncate 'mpfr_trunc])
 
 (define-for-syntax 1ary2-funs (list))
 (provide (for-syntax 1ary2-funs))
