@@ -687,7 +687,6 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
  [bfbesy0 'mpfr_y0]
  [bfbesy1 'mpfr_y1]
  [bfrint 'mpfr_rint]
- [bfround 'mpfr_rint_roundeven]
  [bffloor 'mpfr_rint_floor]
  [bfceiling 'mpfr_rint_ceil]
  [bftruncate 'mpfr_rint_trunc]
@@ -702,9 +701,20 @@ There's no reason to allocate new limbs for an _mpfr without changing its precis
         [(= 0 (bigfloat-signbit x))  (force 1.bf)]
         [else  (force -1.bf)]))
 
-(provide bfsgn)
+(define (bfround x)
+  (if (>= (bigfloat-exponent x) 0)
+      ;; In this case, `x` is already an integer, so no rounding needs
+      ;; to be performed; we use bfcopy to change precision while
+      ;; respecting rounding mode
+      (bfcopy x)
+      ;; In this case, `x` is known not to be near infinity, so
+      ;; `bfrint` will do the right thing.
+      (parameterize ([bf-rounding-mode 'nearest])
+        (bfrint x))))
+
+(provide bfsgn bfround)
 (begin-for-syntax
-  (set! 1ary-funs (list* #'bfsgn 1ary-funs)))
+  (set! 1ary-funs (list* #'bfsgn #'bfround 1ary-funs)))
 
 (define mpfr-fac-ui (get-mpfr-fun 'mpfr_fac_ui (_fun _mpfr-pointer _ulong _rnd_t -> _int)))
 
