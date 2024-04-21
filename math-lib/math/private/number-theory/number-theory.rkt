@@ -185,9 +185,7 @@
 
 (: prime-strong-pseudo? : Natural -> Boolean)
 (define (prime-strong-pseudo? n)
-  (let ([explanation (prime-strong-pseudo/explanation n)])
-    (or (eq? explanation 'very-probably-prime)
-        (eq? explanation #t))))
+  (eq? (prime-strong-pseudo/explanation n) 'very-probably-prime))
 
 
 (: prime? : Integer -> Boolean)
