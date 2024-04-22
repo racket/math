@@ -4,7 +4,8 @@
          "../../flonum.rkt"
          "../../base.rkt"
          "log-gamma-zeros.rkt"
-         "gamma.rkt")
+         "gamma.rkt"
+         "lanczos.rkt")
 
 (provide fllog-gamma log-gamma)
 
@@ -398,10 +399,37 @@
                   [(x . fl< . 4.5)  (fllog-gamma-small-positive x)]
                   [else  (fllog-gamma-large-positive x)])))]))
 
+(define log-√2π 0.9189385332046727417803297)
+(define log-π 1.14472988584940017414342735)
+(: complex-log-gamma (Number -> Number))
+(define (complex-log-gamma z)
+  (define neg? (< (real-part z)0))
+  (define z* (if neg? (- z) z))
+  (cond
+    [(or (= z* 1)(= z* 2))0]
+    [else
+     (define z- (- z* 0.5))
+     (define zg (+ z- lanczos-complex-g))
+     
+     (define ans
+       (+ (- zg) (* z- (log zg))
+          log-√2π (log (+ (car lanczos-complex-c)
+                          (for/sum : Number ([a (in-list (cdr lanczos-complex-c))]
+                                             [i (in-naturals 0)])
+                            (/ a (+ z* i)))))))
+     (cond
+       [neg?
+        (define lpi (+ log-π (* (if (< (imag-part z) 0) +i -i) pi)))
+        (- lpi (log z) ans (log (sin (* pi z))))]
+       [else ans])]))
+
+
 (: log-gamma (case-> (One -> Zero)
                      (Flonum -> Flonum)
-                     (Real -> (U Zero Flonum))))
-(define (log-gamma x)
+                     (Real -> (U Zero Flonum))
+                     (Number -> Number)))
+(define (log-gamma z)
+  (define x (if (= (imag-part z) 0) (real-part z) z))
   (cond [(flonum? x)  (fllog-gamma x)]
         [(single-flonum? x)  (fllog-gamma (fl x))]
         [(integer? x)
@@ -409,4 +437,5 @@
                 (raise-argument-error 'log-gamma "Real, not Zero or Negative-Integer" x)]
                [(eqv? x 1)  0]
                [else  (fllog-factorial (fl (- x 1)))])]
-        [else  (fllog-gamma (fl x))]))
+        [(real? x)  (fllog-gamma (fl x))]
+        [else (complex-log-gamma z)]))

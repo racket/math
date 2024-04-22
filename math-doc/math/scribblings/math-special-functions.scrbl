@@ -19,7 +19,7 @@
 The term ``special function'' has no formal definition. However, for the purposes of the
 @racketmodname[math] library, a @deftech{special function} is one that is not @tech{elementary}.
 
-The special functions are split into two groups: @secref{real-functions} and
+The special functions are split into two groups: @secref{complex-real-functions} and
 @secref{flonum-functions}. Functions that accept real arguments are usually defined
 in terms of their flonum counterparts, but are different in two crucial ways:
 @itemlist[
@@ -28,13 +28,13 @@ in terms of their flonum counterparts, but are different in two crucial ways:
        @racket[exn:fail:contract] instead of returning @racket[+nan.0].}
 ]
 
-Currently, @racketmodname[math/special-functions] does not export any functions that accept
-or return complex numbers. Mathematically, some of them could return complex numbers given
-real numbers, such @racket[hurwitz-zeta] when given a negative second argument. In
+Only functions in @secref{complex-real-functions} support accepting or returning complex arguments.
+Mathematically, some of the other functions could return complex numbers given
+real numbers, such as @racket[hurwitz-zeta] when given a negative second argument. In
 these cases, they raise an @racket[exn:fail:contract] (for an exact argument) or return
 @racket[+nan.0] (for an inexact argument).
 
-Most real functions have more than one type, but they are documented as having only
+Most real and complex functions have more than one type, but they are documented as having only
 one. The documented type is the most general type, which is used to generate a contract for
 uses in untyped code. Use @racket[:print-type] to see all of a function's types.
 
@@ -56,11 +56,11 @@ The most general type @racket[Real -> (U Zero Flonum)] is used to generate
 @racket[lambert]'s contract when it is used in untyped code. Except for this discussion,
 this the only type documented for @racket[lambert].
 
-@section[#:tag "real-functions"]{Real Functions}
+@section[#:tag "complex-real-functions"]{Complex and Real Functions}
 
-@defproc[(gamma [x Real]) (U Positive-Integer Flonum)]{
+@defproc[(gamma [x Number]) Number]{
 Computes the @hyperlink["http://en.wikipedia.org/wiki/Gamma_function"]{gamma function},
-a generalization of the factorial function to the entire real line, except nonpositive integers.
+a generalization of the factorial function to the entire complex plane, except nonpositive exact integers.
 When @racket[x] is an exact integer, @racket[(gamma x)] is exact.
 
 @examples[#:eval untyped-eval
@@ -76,16 +76,17 @@ When @racket[x] is an exact integer, @racket[(gamma x)] is exact.
                  (gamma -1.0)
                  (gamma 0.0)
                  (gamma -0.0)
+                 (gamma 1+i)
                  (gamma 172.0)
                  (eval:alts
                   (bf (gamma 172))
                   (eval:result @racketresultfont{(bf "1.241018070217667823424840524103103992618e309")}))]
 
-Error is no more than 10 @tech{ulps} everywhere that has been tested, and is usually no more than 4
-ulps.
+On the real line the error is no more than 10 @tech{ulps} everywhere that has been tested, and is usually no more than 4
+ulps. In the rest of the complex plane the relative error is smaller than 1e-13 except in the very close neighbourhood of negative integers, where the error can increase signifiantly.
 }
 
-@defproc[(log-gamma [x Real]) (U Zero Flonum)]{
+@defproc[(log-gamma [x Number]) Number]{
 Like @racket[(log (abs (gamma x)))], but more accurate and without unnecessary overflow.
 The only exact cases are @racket[(log-gamma 1) = 0] and @racket[(log-gamma 2) = 0].
 
@@ -99,14 +100,15 @@ The only exact cases are @racket[(log-gamma 1) = 0] and @racket[(log-gamma 2) = 
                  (log-gamma -1)
                  (log-gamma -1.0)
                  (log-gamma 0.0)
+                 (log-gamma 1+i)
                  (log (abs (gamma 172.0)))
                  (log-gamma 172.0)]
 
-Error is no more than 11 @tech{ulps} everywhere that has been tested, and is usually no more than 2
+On the real line error is no more than 11 @tech{ulps} everywhere that has been tested, and is usually no more than 2
 ulps. Error reaches its maximum near negative roots.
 }
 
-@defproc[(psi0 [x Real]) Flonum]{
+@defproc[(psi0 [x Number]) Number]{
 Computes the @hyperlink["http://en.wikipedia.org/wiki/Digamma_function"]{digamma function},
 the logarithmic derivative of the gamma function.
 
@@ -114,10 +116,11 @@ the logarithmic derivative of the gamma function.
                  (plot (function psi0 -2.5 4.5) #:y-min -5 #:y-max 5)
                  (psi0 0)
                  (psi0 1)
+                 (psi0 1+i)
                  (- gamma.0)]
 
-Except near negative roots, maximum observed error is 2 @tech{ulps}, but is usually no more
-than 1.
+On the real line, except near negative roots, maximum observed error is 2 @tech{ulps}, but is usually no more
+than 1. In the complex plane the relative error is around 1e-13.
 
 Near negative roots, which occur singly between each pair of negative integers, @racket[psi0]
 exhibits @tech{catastrophic cancellation} from using the reflection formula, meaning that
@@ -149,7 +152,7 @@ near negative roots. Near negative roots, relative error is apparently unbounded
 is low.
 }
 
-@deftogether[(@defproc[(erf [x Real]) Real]
+@deftogether[(@defproc[(erf [x Number]) Number]
               @defproc[(erfc [x Real]) Real])]{
 Compute the @hyperlink["http://en.wikipedia.org/wiki/Error_function"]{error function and
 complementary error function}, respectively. The only exact cases are @racket[(erf 0) = 0]
@@ -162,7 +165,8 @@ and @racket[(erfc 0) = 1].
                  (erf 1)
                  (- 1 (erfc 1))
                  (erf -1)
-                 (- (erfc 1) 1)]
+                 (- (erfc 1) 1)
+                 (erf 1+i)]
 
 Mathematically, erfc(@italic{x}) = 1 - erf(@italic{x}), but having separate implementations
 can help maintain accuracy. To compute an expression containing erf, use @racket[erf] for
@@ -180,8 +184,8 @@ manipulate @racket[(- 1.0 (erfc x))] and its surrounding expressions to avoid th
                     (flulp-error (fllog1p (- (erfc x))) log-erf-x)]
 For negative @racket[x] away from @racket[0.0], do the same with @racket[(- (erfc (- x)) 1.0)].
 
-For @racket[erf], error is no greater than 2 @tech{ulps} everywhere that has been tested, and
-is almost always no greater than 1. For @racket[erfc], observed error is no greater than 4 ulps,
+For @racket[erf], on the real line the error is no greater than 2 @tech{ulps} everywhere that has been tested, and
+is almost always no greater than 1. In the complex plane the relative error is smaller than 1e-12. For @racket[erfc], observed error is no greater than 4 ulps,
 and is usually no greater than 2.
 }
 
@@ -389,10 +393,10 @@ have very dissimilar magnitudes (e.g. @racket[1e-16] and @racket[1e16]), it exhi
 @tech{catastrophic cancellation}. We are working on it.
 }
 
-@deftogether[(@defproc[(Fresnel-S [x Real]) Real]
-              @defproc[(Fresnel-C [x Real]) Real]
-              @defproc[(Fresnel-RS [x Real]) Real]
-              @defproc[(Fresnel-RC [x Real]) Real])]{
+@deftogether[(@defproc[(Fresnel-S [x Number]) Number]
+              @defproc[(Fresnel-C [x Number]) Number]
+              @defproc[(Fresnel-RS [x Number]) Number]
+              @defproc[(Fresnel-RC [x Number]) Number])]{
 Compute the @hyperlink["https://en.wikipedia.org/wiki/Fresnel_integral"]{Fresnel integrals}. Where
  @itemlist[
  @item{@racket[(Fresnel-S x)] calculates ∫sin(πt²/2) |0->x}
@@ -408,7 +412,9 @@ The first two are sometimes also referred to as the natural Fresnel integrals.
                  (Fresnel-RS 1)
                  (* (sqrt (/ pi 2)) (Fresnel-S (* (sqrt (/ 2 pi)) 1)))]
 
-Spot-checks within the region 0<=x<=150 sugest that the error is no greater than 1e-14 everywhere that has been tested, and usually is lower than 2e-15.
+Spot-checks on the real line within the region 0<=x<=150 sugest that the error is no greater than 1e-14
+everywhere that has been tested, and usually is lower than 2e-15. In the complex plane the relative error
+is smaller than 1e-12.
 }
 
 
