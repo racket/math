@@ -69,7 +69,7 @@
             [(c fc)  (values b fb)]
             [(fs)  (f s)]
             ;; Replace the endpoint with the same sign as s
-            [(a fa b fb)  (if ((* fa fs) . < . 0.0)
+            [(a fa b fb)  (if (if (< fa 0.) (< 0. fs) (< fs 0.))
                               (values a fa s fs)
                               (values s fs b fb))]
             ;; Make sure b is closer
