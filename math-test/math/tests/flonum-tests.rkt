@@ -197,3 +197,7 @@ fl2<=
 (check-equal? (parameterize ([print-fp-test-progress? #f])
                 (test-floating-point 10000))
               empty)
+
+;; ===================================================================================================
+;; Bracketed root
+(check-equal? (flbracketed-root values -1e-200 1e-199) 0.)
