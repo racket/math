@@ -88,7 +88,7 @@
         [(= fb 0.0)  b]
         [(or (flnan? a) (flnan? fa) (flnan? b) (flnan? fb))  +nan.0]
         ;; Check signs
-        [((* fa fb) . >= . 0.0)
+        [(if (< fa 0.) (< fb 0.) (< 0. fb))
          (debugf "(f ~v) = ~v and (f ~v) = ~v do not bracket a root~n" a fa b fb)
          +nan.0]
         [else
