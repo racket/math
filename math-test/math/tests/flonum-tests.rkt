@@ -201,3 +201,5 @@ fl2<=
 ;; ===================================================================================================
 ;; Bracketed root
 (check-equal? (flbracketed-root values -1e-200 1e-199) 0.)
+(check-equal? (flbracketed-root (λ (x) (- -1e-250 x)) 9e-202 -1e-200) -1e-250)
+(check-equal? (flbracketed-root (λ (x) (- +1e-250 x)) 9e-202 -1e-200) +1e-250)
