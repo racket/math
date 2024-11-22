@@ -677,6 +677,39 @@ which is the square of standard deviation. Construct normal distributions from v
                        #:x-min -5 #:x-max 5 #:y-label "probability")]
 }
 
+@subsection{Student-t Distributions}
+
+@margin-note{Wikipedia:
+             @hyperlink["https://en.wikipedia.org/wiki/Student's_t-distribution"]{Student-t Distribution}.}
+@deftogether[(@defidform[Student-t-Dist]
+              @defproc[(student-t-dist [freedom Positive-Real] [mean Real 0] [scale Real 1]) Normal-Dist]
+              @defproc[(student-t-dist-freedom [d Normal-Dist]) Positive-Flonum]
+              @defproc[(student-t-dist-mean [d Normal-Dist]) Flonum]
+              @defproc[(student-t-dist-scale [d Normal-Dist]) Flonum])]{
+Represents the student-t distribution family parameterized by degree of freedom, mean (also called ``location'') and scale.
+
+@examples[#:eval untyped-eval
+                 (plot (for/list ([ν  (in-list '(1 2 3 5.5))]
+                                  [μ  (in-list '(0 0 0 2.3))]
+                                  [σ  (in-list '(1 1 1 0.4))]
+                                  [i  (in-naturals)])
+                         (function (distribution-pdf (student-t-dist ν μ σ))
+                                   #:color i #:label (if (and (= μ 0) (= σ 1))
+                                                         (format "Stud-t(~a)" ν)
+                                                         (format "Stud-t(~a,~a,~a)" ν μ σ))))
+                       #:x-min -5 #:x-max 10 #:y-label "density")
+                 
+                 (plot (for/list ([ν  (in-list '(1 2 3 5.5))]
+                                  [μ  (in-list '(0 0 0 2.3))]
+                                  [σ  (in-list '(1 1 1 0.4))]
+                                  [i  (in-naturals)])
+                         (function (ordered-dist-cdf (student-t-dist ν μ σ))
+                                   #:color i #:label (if (and (= μ 0) (= σ 1))
+                                                         (format "Stud-t(~a)" ν)
+                                                         (format "Stud-t(~a,~a,~a)" ν μ σ))))
+                       #:x-min -5 #:x-max 10 #:y-label "probability")]
+}
+
 @subsection{Triangular Distributions}
 
 @margin-note{Wikipedia:
