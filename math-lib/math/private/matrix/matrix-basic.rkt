@@ -312,9 +312,7 @@
 (define (matrix-cos-angle M N)
   (/ (matrix-dot M N) (* (matrix-2norm M) (matrix-2norm N))))
 
-(: matrix-angle (case-> ((Matrix Flonum) (Matrix Flonum) -> Flonum)
-                        ((Matrix Real) (Matrix Real) -> Real)
-                        ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
+(: matrix-angle (case-> ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
                         ((Matrix Number) (Matrix Number) -> Number)))
 (define (matrix-angle M N)
   (acos (matrix-cos-angle M N)))
