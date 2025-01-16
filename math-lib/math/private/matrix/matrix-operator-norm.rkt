@@ -79,9 +79,7 @@ See "How to Measure Errors" in the LAPACK manual for more details:
   ;(matrix-min-singular-value (matrix* (matrix-hermitian M) R))
   (error 'unimplemented))
 
-(: matrix-basis-angle (case-> ((Matrix Flonum) (Matrix Flonum) -> Flonum)
-                              ((Matrix Real) (Matrix Real) -> Real)
-                              ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
+(: matrix-basis-angle (case-> ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
                               ((Matrix Number) (Matrix Number) -> Number)))
 ;; Returns the angle between the two subspaces spanned by the two given sets of column vectors
 (define (matrix-basis-angle M R)
