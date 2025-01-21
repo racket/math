@@ -661,7 +661,39 @@
   (check-exn exn:fail:contract? (λ () (matrix-dot a (matrix [[1]]))))
   (check-exn exn:fail:contract? (λ () (matrix-dot (matrix [[1]]) a))))
 
-;; TODO: matrix-angle
+;; matrix-angle
+;; guarantee that matrix-cos-angle on real is in [-1 .. 1] except for zero?
+(for: ([i (in-range 10)])
+      (define n (+ 1 (random 3)))
+      (define m (+ 1 (random 4)))
+      (define A (random-matrix n m))
+      (define B (random-matrix n m))
+      (define ca (matrix-cos-angle A B))
+      (check-true (or (and (rational? ca) (<= ca 1.))
+                      (matrix-zero? A) (matrix-zero? B))))
+(let ([A (matrix [[-1.65e+145 -9.55e+152]])]
+      [B (matrix [[-2.05e-130 -1.88e-122]])])
+  (check-true (<= (abs (matrix-cos-angle A B)) 1.)))
+;; check matrix-cos-angle doesn't overflow easily
+(let ([A (matrix [[-1.20e-21+8.16e+173i -3.18e+280-4.15e+275i]])]
+      [B (matrix [[-2.51e-270-4.38e-68i -1.65e+232+3.06e+227i]])])
+  (define ca (matrix-cos-angle A B))
+  ;; 0.9999999995008538+3.159576900273938e-05i
+  (check-true (<= (magnitude ca) (flnext 1.))))
+(let ([A (matrix-scale (matrix [[1 1]]) 1e270+3.i)]
+      [B (matrix-scale (matrix [[9 0]]) 1e270+3.i)])
+  (define ca (matrix-cos-angle A B))
+  ;; 0.9999999995008538+3.159576900273938e-05i
+  (check-true (<= (magnitude (- ca (make-rectangular (sqrt 1/2) 0.))) epsilon.0)))
+;; check matrix-cos-angle treats axes with inf as principal axes
+(check-equal? (matrix-cos-angle (matrix [[1 5] [2 9]])
+                                (matrix [[2 8] [3 -inf.0]]))
+              (matrix-cos-angle (matrix [[1 5] [2 9]])
+                                (matrix [[0. 0.] [0. -1.0]])))
+(check-equal? (matrix-cos-angle (matrix [[2 9]])
+                                (matrix [[3 -8+inf.0i]]))
+              (matrix-cos-angle (matrix [[2 9]])
+                                (matrix [[0. -0+1.0i]])))
 
 ;; TODO: matrix-normalize
 

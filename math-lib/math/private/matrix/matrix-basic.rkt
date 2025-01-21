@@ -309,13 +309,73 @@
                             ((Matrix Real) (Matrix Real) -> Real)
                             ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
                             ((Matrix Number) (Matrix Number) -> Number)))
-(define (matrix-cos-angle M N)
-  (/ (matrix-dot M N) (* (matrix-2norm M) (matrix-2norm N))))
+(define matrix-cos-angle
+  (let ()
+    (define (mag² [x : Number]) (if (real? x) (sqr x) (+ (sqr (real-part x)) (sqr (imag-part x)))))
+    (define (inf=>1 [x : Real]) : Flonum (if (eq? x +inf.0) 1. (if (eq? x -inf.0) -1. 0.)))
+    (: cinf=>1 (case-> (-> Real Flonum)
+                       (-> Float-Complex Float-Complex)
+                       (-> Number Number)))
+    (define (cinf=>1 x)
+      (if (real? x)
+          (inf=>1 x)
+          (make-flrectangular (inf=>1 (real-part x))
+                              (inf=>1 (imag-part x)))))
+    (: unit-bound (case-> (-> Flonum Flonum)
+                          (-> Real Real)))
+    (define (unit-bound x)
+      (if (flonum? x)
+          (flmin (flmax -1. x) 1.)
+          (min (max -1 x) 1)))
+    (: inner (case-> ((Matrix Flonum) (Matrix Flonum) -> Flonum)
+                     ((Matrix Real) (Matrix Real) -> Real)
+                     ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
+                     ((Matrix Number) (Matrix Number) -> Number)))
+    (define (inner A* B*)
+      (define nA (sqrt (array-all-sum (inline-array-map mag² A*))))
+      (define nB (sqrt (array-all-sum (inline-array-map mag² B*))))
+      
+      (define result (/ (matrix-dot A* B*) (* nA nB)))
+      
+      (if (real? result)
+          (unit-bound result)
+          (make-rectangular (unit-bound (real-part result))
+                            (unit-bound (imag-part result)))))
+    (λ (A B)
+      (define mA (array-strict (inline-array-map nonstupid-magnitude A)))
+      (define mB (array-strict (inline-array-map nonstupid-magnitude B)))
+      (define mxA (array-all-max mA))
+      (define mxB (array-all-max mB))
+  
+      (cond
+        [(and (rational? mxA) (positive? mxA)
+              (rational? mxB) (positive? mxB))
+         (define A* (inline-array-map (λ (x) (/ x mxA)) A))
+         (define B* (inline-array-map (λ (x) (/ x mxB)) B))
+     
+         (inner A* B*)]
+        [(or (nan? mxA) (nan? mxB) (= 0 mxA) (= 0 mxB))
+         (/ (matrix-dot A B) (* mxA mxB))]
+        [else
+         (define A* (if (rational? mxA)
+                        (inline-array-map (λ (x) (/ x mxA)) A)
+                        (array-strict (inline-array-map cinf=>1 A))))
+         (define B* (if (rational? mxB)
+                        (inline-array-map (λ (x) (/ x mxB)) B)
+                        (array-strict (inline-array-map cinf=>1 B))))
+         (inner A* B*)]))))
 
-(: matrix-angle (case-> ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
+(: matrix-angle (case-> ((Matrix Flonum) (Matrix Flonum) -> Flonum)
+                        ((Matrix Real) (Matrix Real) -> Real)
+                        ((Matrix Float-Complex) (Matrix Float-Complex) -> Float-Complex)
                         ((Matrix Number) (Matrix Number) -> Number)))
-(define (matrix-angle M N)
-  (acos (matrix-cos-angle M N)))
+(define (matrix-angle A B)
+  (define ca (matrix-cos-angle A B))
+  (cond
+    [(flonum? ca) (flacos ca)]
+    [(real? ca)
+     (if (eq? ca 1) 0 (flacos (fl ca)))]
+    [else (acos ca)]))
 
 (: matrix-normalize
    (All (A) (case-> ((Matrix Flonum)             -> (Matrix Flonum))
