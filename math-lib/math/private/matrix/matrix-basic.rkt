@@ -312,7 +312,7 @@
 (define matrix-cos-angle
   (let ()
     (define (mag² [x : Number]) (if (real? x) (sqr x) (+ (sqr (real-part x)) (sqr (imag-part x)))))
-    (define (inf=>1 [x : Real]) : Flonum (if (eq? x +inf.0) 1. (if (eq? x -inf.0) -1. 0.)))
+    (define (inf=>1 [x : Real]) : Flonum (if (eqv? x +inf.0) 1. (if (eqv? x -inf.0) -1. 0.)))
     (: cinf=>1 (case-> (-> Real Flonum)
                        (-> Float-Complex Float-Complex)
                        (-> Number Number)))
@@ -374,7 +374,7 @@
   (cond
     [(flonum? ca) (flacos ca)]
     [(real? ca)
-     (if (eq? ca 1) 0 (flacos (fl ca)))]
+     (if (eqv? ca 1) 0 (flacos (fl ca)))]
     [else (acos ca)]))
 
 (: matrix-normalize
