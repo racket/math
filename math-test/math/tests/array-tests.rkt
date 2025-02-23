@@ -245,6 +245,16 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; Other constructors
 
+(check-equal? (make-array #(4 0 2))
+              (build-array #(4 0 2)))
+
+(check-equal? (build-array #(4 0 2))
+              (build-simple-array #(4 0 2)))
+
+(check-pred zero? (array-size (make-array #(4 0 2))))
+(check-pred zero? (array-size (build-array #(4 0 2))))
+(check-pred zero? (array-size (build-simple-array #(4 0 2))))
+
 (check-equal? (make-array #(3 3) 0)
               (build-array #(3 3) (λ (js) 0)))
 

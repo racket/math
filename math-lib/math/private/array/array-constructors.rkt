@@ -6,7 +6,8 @@
  (begin (require "array-struct.rkt")
         (require "utils.rkt"))
  "typed-array-constructors.rkt"
- [make-array        (All (A) ((Vectorof Integer) A -> (Array A)))]
+ [make-array        (All (A) (case-> ((Vectorof Integer) -> (Array Nothing))
+                                     ((Vectorof Integer) A -> (Array A))))]
  [axis-index-array  ((Vectorof Integer) Integer -> (Array Index))]
  [index-array       ((Vectorof Integer) -> (Array Index))]
  [indexes-array     ((Vectorof Integer) -> (Array Indexes))])

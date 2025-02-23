@@ -12,8 +12,10 @@
 (require/untyped-contract
  (begin (require (only-in "typed-array-struct.rkt" Array)))
  "typed-array-struct.rkt"
- [build-array  (All (A) ((Vectorof Integer) ((Vectorof Index) -> A) -> (Array A)))]
- [build-simple-array  (All (A) ((Vectorof Integer) ((Vectorof Index) -> A) -> (Array A)))]
+ [build-array  (All (A) (case-> ((Vectorof Integer) -> (Array Nothing))
+                                ((Vectorof Integer) ((Vectorof Index) -> A) -> (Array A))))]
+ [build-simple-array  (All (A) (case-> ((Vectorof Integer) -> (Array Nothing))
+                                       ((Vectorof Integer) ((Vectorof Index) -> A) -> (Array A))))]
  [list->array (All (A) (case-> ((Listof A) -> (Array A))
                                ((Vectorof Integer) (Listof A) -> (Array A))))])
 
