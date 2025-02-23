@@ -6,11 +6,20 @@
 
 (provide (all-defined-out))
 
-(: make-array (All (A) (In-Indexes A -> (Array A))))
-(define (make-array ds v)
-  (let ([ds  (check-array-shape
-              ds (λ () (raise-argument-error 'make-array "(Vectorof Index)" 0 ds v)))])
-    (unsafe-build-simple-array ds (λ (js) v))))
+(: make-array (All (A) (case-> (In-Indexes -> (Array Nothing))
+                               (In-Indexes A -> (Array A)))))
+(define make-array
+  (case-lambda
+    [(ds)
+     (unless (for/or : Boolean ([d (in-vector ds)]) (eqv? 0 d))
+       (raise-argument-error 'make-array "array shape contains at least one 0" 0 ds))
+     (let ([ds  (check-array-shape
+                 ds (λ () (raise-argument-error 'make-array "(Vectorof Index)" 0 ds)))])
+       (unsafe-build-simple-array ds (λ (js) (error "this procedure should never be called"))))]
+    [(ds v)
+     (let ([ds  (check-array-shape
+                 ds (λ () (raise-argument-error 'make-array "(Vectorof Index)" 0 ds v)))])
+       (unsafe-build-simple-array ds (λ (js) v)))]))
 
 (: axis-index-array (In-Indexes Integer -> (Array Index)))
 (define (axis-index-array ds k)

@@ -109,22 +109,38 @@
   (define size (check-array-shape-size 'unsafe-build-simple-array ds))
   (Array ds size (box #t) void f))
 
-(: build-array (All (A) (In-Indexes (Indexes -> A) -> (Array A))))
-(define (build-array ds proc)
-  (let ([ds  (check-array-shape
-              ds (λ () (raise-argument-error 'build-array "(Vectorof Index)" 0 ds proc)))])
-    (define arr
-      (unsafe-build-array ds (λ: ([js : Indexes])
-                               (proc (vector->immutable-vector js)))))
-    (array-default-strict! arr)
-    arr))
+(: build-array (All (A) (case-> (In-Indexes -> (Array Nothing))
+                                (In-Indexes (Indexes -> A) -> (Array A)))))
+(define build-array
+  (case-lambda
+    [(ds)
+     (unless (for/or : Boolean ([d (in-vector ds)]) (eqv? 0 d))
+       (raise-argument-error 'build-array "array shape contains at least one 0" 0 ds))
+     (build-array ds (λ: ([js : Indexes])
+                       (error "this procedure should never be called")))]
+    [(ds proc)
+     (let ([ds  (check-array-shape
+                 ds (λ () (raise-argument-error 'build-array "(Vectorof Index)" 0 ds proc)))])
+       (define arr
+         (unsafe-build-array ds (λ: ([js : Indexes])
+                                  (proc (vector->immutable-vector js)))))
+       (array-default-strict! arr)
+       arr)]))
 
-(: build-simple-array (All (A) (In-Indexes (Indexes -> A) -> (Array A))))
-(define (build-simple-array ds proc)
-  (let ([ds  (check-array-shape
-              ds (λ () (raise-argument-error 'build-simple-array "(Vectorof Index)" 0 ds proc)))])
-    (unsafe-build-simple-array ds (λ: ([js : Indexes])
-                                    (proc (vector->immutable-vector js))))))
+(: build-simple-array (All (A) (case-> (In-Indexes -> (Array Nothing))
+                                       (In-Indexes (Indexes -> A) -> (Array A)))))
+(define build-simple-array
+  (case-lambda
+    [(ds)
+     (unless (for/or : Boolean ([d (in-vector ds)]) (eqv? 0 d))
+       (raise-argument-error 'build-simple-array "array shape contains at least one 0" 0 ds))
+     (build-simple-array ds (λ: ([js : Indexes])
+                              (error "this procedure should never be called")))]
+    [(ds proc)
+     (let ([ds  (check-array-shape
+                 ds (λ () (raise-argument-error 'build-simple-array "(Vectorof Index)" 0 ds proc)))])
+       (unsafe-build-simple-array ds (λ: ([js : Indexes])
+                                       (proc (vector->immutable-vector js)))))]))
 
 (: unsafe-list->array (All (A) (Indexes (Listof A) -> (Array A))))
 (define (unsafe-list->array ds xs)

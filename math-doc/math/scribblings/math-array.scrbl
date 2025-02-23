@@ -7,7 +7,7 @@
                      math plot
                      (only-in typed/racket/base
                               ann inst : λ: define: make-predicate ->
-                              Flonum Real Boolean Any Integer Index Natural Exact-Positive-Integer
+                              Flonum Real Boolean Nothing Any Integer Index Natural Exact-Positive-Integer
                               Nonnegative-Real Sequenceof Fixnum Values Number Float-Complex
                               All U List Vector Listof Vectorof Struct FlVector
                               Symbol Output-Port))
@@ -719,20 +719,41 @@ the array's elements:
 Another way to create mutable arrays from literal data is to use @racket[vector->array].
 }
 
-@defproc[(make-array [ds In-Indexes] [value A]) (Array A)]{
-Returns an array with @tech{shape} @racket[ds], with every element's value as @racket[value].
-Analogous to @racket[make-vector].
-@examples[#:eval typed-eval
-                 (make-array #() 5)
-                 (make-array #(1 2) 'sym)
-                 (make-array #(4 0 2) "Invisible")]
+@defproc*[([(make-array [ds In-Indexes]) (Array Nothing)]
+           [(make-array [ds In-Indexes] [value A]) (Array A)])]{
+Returns an array with @tech{shape} @racket[ds].
+
+@itemlist[
+  @item{If @racket[value] is not provided, @racket[ds] must contain at least one @racket[0].
+        @examples[#:eval typed-eval
+                  (make-array #())
+                  (make-array #(1 2))
+                  (make-array #(4 0 2))]}
+  @item{If @racket[value] is provided, the array is populated with every element
+        set to @racket[value]. Analogous to @racket[make-vector].
+        @examples[#:eval typed-eval
+                  (make-array #() 5)
+                  (make-array #(1 2) 'sym)
+                  (make-array #(4 0 2) "Invisible")]}
+]
+
 The arrays returned by @racket[make-array] do not allocate storage for their elements and
 are @tech{strict}.
 }
 
-@defproc[(build-array [ds In-Indexes] [proc (Indexes -> A)]) (Array A)]{
-Returns an array with @tech{shape} @racket[ds] and @tech{procedure} @racket[proc].
-Analogous to @racket[build-vector].
+@defproc*[([(build-array [ds In-Indexes]) (Array Nothing)]
+           [(build-array [ds In-Indexes] [proc (Indexes -> A)]) (Array A)])]{
+Returns an array with @tech{shape} @racket[ds].
+
+@itemlist[
+  @item{If @racket[proc] is not provided, @racket[ds] must contain at least one @racket[0].
+        @examples[#:eval typed-eval
+                  (build-array #())
+                  (build-array #(1 2))
+                  (build-array #(4 0 2))]}
+  @item{If @racket[proc] is provided, it is the @tech{procedure} of the array.
+        Analogous to @racket[build-vector].}
+]
 }
 
 @defproc[(array->mutable-array [arr (Array A)]) (Mutable-Array A)]{
@@ -1932,7 +1953,8 @@ Apply one of these to return values from library functions to ensure that users 
 by default. See @secref{array:nonstrict} for details.
 }
 
-@defproc[(build-simple-array [ds In-Indexes] [proc (Indexes -> A)]) (Array A)]{
+@defproc*[([(build-simple-array [ds In-Indexes]) (Array Nothing)]
+           [(build-simple-array [ds In-Indexes] [proc (Indexes -> A)]) (Array A)])]{
 Like @racket[build-array], but returns an array without storage that is nevertheless considered to be
 strict, regardless of the value of @racket[array-strictness].
 Such arrays will @italic{not} cache their elements when @racket[array-strict!] or
