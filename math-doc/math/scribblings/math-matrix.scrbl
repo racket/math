@@ -250,13 +250,22 @@ The length of @racket[xs] must be positive.
 
 @define[block-diagonal-url]{http://en.wikipedia.org/wiki/Block_matrix#Block_diagonal_matrices}
 
-@defproc[(block-diagonal-matrix [Xs (Listof (Matrix A))] [zero A 0]) (Matrix A)]{
+@defproc[(block-diagonal-matrix [Xs (Listof (Array A))] [zero A 0]) (Array A)]{
 @margin-note*{@hyperlink[block-diagonal-url]{Wikipedia: Block-diagonal matrices}}
-Returns a matrix with matrices @racket[Xs] along the diagonal and @racket[zero] everywhere else.
-The length of @racket[Xs] must be positive.
+Returns an array with two-dimensional arrays @racket[Xs] along the diagonal and
+@racket[zero] everywhere else.
 @examples[#:eval typed-eval
+                 (block-diagonal-matrix '())
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
                                               (diagonal-matrix '(7 5 7))
+                                              (col-matrix [1 2 3])
+                                              (row-matrix [4 5 6])))
+                 (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
+                                              (build-simple-array #(2 0) (λ: ([js : Indexes])
+                                                                           (error "this procedure should never be called")))
+                                              (diagonal-matrix '(7 5 7))
+                                              (build-simple-array #(0 2) (λ: ([js : Indexes])
+                                                                           (error "this procedure should never be called")))
                                               (col-matrix [1 2 3])
                                               (row-matrix [4 5 6])))
                  (block-diagonal-matrix (list (make-matrix 2 2 2.0+3.0i)
