@@ -1,20 +1,16 @@
 #lang typed/racket/base
 
-(require racket/fixnum
-         racket/match
-         racket/list
+(require racket/list
          "matrix-types.rkt"
          "matrix-constructors.rkt"
-         "matrix-conversion.rkt"
          "matrix-basic.rkt"
          "matrix-gauss-elim.rkt"
          "utils.rkt"
-         "../vector/vector-mutate.rkt"
+         "algebra/matrix-solve.rkt"
          "../array/array-indexing.rkt"
-         "../array/mutable-array.rkt"
          "../array/array-struct.rkt")
 
-(provide 
+(provide
  matrix-determinant
  matrix-determinant/row-reduction  ; for testing
  matrix-invertible?
@@ -29,44 +25,26 @@
                               ((Matrix Float-Complex) -> Float-Complex)
                               ((Matrix Number) -> Number)))
 (define (matrix-determinant M)
-  (define m (square-matrix-size M))
-  (cond
-    [(= m 1)  (matrix-ref M 0 0)]
-    [(= m 2)  (match-define (vector a b c d)
-                (mutable-array-data (array->mutable-array M)))
-              (- (* a d) (* b c))]
-    [(= m 3)  (match-define (vector a b c d e f g h i)
-                (mutable-array-data (array->mutable-array M)))
-              (+ (*    a  (- (* e i) (* f h)))
-                 (* (- b) (- (* d i) (* f g)))
-                 (*    c  (- (* d h) (* e g))))]
-    [else
-     (matrix-determinant/row-reduction M)]))
+  (define x00 (matrix-ref M 0 0))
+  (define +F (add x00))
+  (define -F (sub x00))
+  (define *F (mul x00))
+  (define /F (div x00))
+  (define =F (eqv x00))
+  ((make-matrix-determinant +F -F *F /F =F magnitude-compare) M))
 
 (: matrix-determinant/row-reduction (case-> ((Matrix Flonum) -> Flonum)
                                             ((Matrix Real) -> Real)
                                             ((Matrix Float-Complex) -> Float-Complex)
                                             ((Matrix Number) -> Number)))
 (define (matrix-determinant/row-reduction M)
-  (define m (square-matrix-size M))
-  (define rows (matrix->vector* M))
-  (let loop ([#{i : Nonnegative-Fixnum} 0] [#{sign : (U Positive-Fixnum Negative-Fixnum)} 1])
-    (cond
-      [(i . fx< . m)
-       (define-values (p pivot) (find-partial-pivot rows m i i))
-       (cond
-         [(zero? pivot)  pivot]  ; no pivot means non-invertible matrix
-         [else
-          (let ([sign  (if (= i p) sign (begin (vector-swap! rows i p)  ; swapping negates sign
-                                               (if (= sign 1) -1 1)))])
-            (elim-rows! rows m i i pivot (fx+ i 1))  ; adding scaled rows doesn't change it
-            (loop (fx+ i 1) sign))])]
-      [else
-       (define prod (unsafe-vector2d-ref rows 0 0))
-       (let loop ([#{i : Nonnegative-Fixnum} 1] [prod prod])
-         (cond [(i . fx< . m)
-                (loop (fx+ i 1) (* prod (unsafe-vector2d-ref rows i i)))]
-               [else  (* prod sign)]))])))
+  (define x00 (matrix-ref M 0 0))
+  (define +F (add x00))
+  (define -F (sub x00))
+  (define *F (mul x00))
+  (define /F (div x00))
+  (define =F (eqv x00))
+  ((make-matrix-determinant/row-reduction +F -F *F /F =F magnitude-compare) M))
 
 ;; ===================================================================================================
 ;; Inversion
