@@ -12,8 +12,6 @@
          racket/runtime-path
          racket/promise
          racket/serialize
-         (only-in rnrs/arithmetic/bitwise-6
-                  bitwise-first-bit-set)
          "gmp.rkt"
          "utils.rkt")
 
