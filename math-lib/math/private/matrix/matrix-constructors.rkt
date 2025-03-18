@@ -139,7 +139,7 @@
             [else
              zero])))))
 
-(: block-diagonal-matrix/zero (All (A) (case-> (Null A -> (Array Nothing))
+(: block-diagonal-matrix/zero (All (A) (case-> (Null Any -> (Array Nothing))
                                                ((Listof (Array A)) A -> (Array A)))))
 (define block-diagonal-matrix/zero
   (let ([id  (build-simple-array #(0 0) (λ: ([js : Indexes])
