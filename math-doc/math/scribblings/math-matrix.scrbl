@@ -255,11 +255,17 @@ The length of @racket[xs] must be positive.
 Returns an array with two-dimensional arrays @racket[Xs] along the diagonal and
 @racket[zero] everywhere else.
 @examples[#:eval typed-eval
-                 (block-diagonal-matrix '())
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
                                               (diagonal-matrix '(7 5 7))
                                               (col-matrix [1 2 3])
                                               (row-matrix [4 5 6])))
+                 (block-diagonal-matrix (list (make-matrix 2 2 2.0+3.0i)
+                                              (make-matrix 2 2 5.0+7.0i))
+                                        0.0+0.0i)]
+
+Empty two-dimensional arrays are valid inputs. They contribute to the resulting
+array's @tech{shape}.
+@examples[#:eval typed-eval
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
                                               (build-simple-array #(2 0) (λ: ([js : Indexes])
                                                                            (error "this procedure should never be called")))
@@ -268,9 +274,19 @@ Returns an array with two-dimensional arrays @racket[Xs] along the diagonal and
                                                                            (error "this procedure should never be called")))
                                               (col-matrix [1 2 3])
                                               (row-matrix [4 5 6])))
-                 (block-diagonal-matrix (list (make-matrix 2 2 2.0+3.0i)
-                                              (make-matrix 2 2 5.0+7.0i))
-                                        0.0+0.0i)]
+                 (block-diagonal-matrix (list (build-simple-array #(2 0) (λ: ([js : Indexes])
+                                                                           (error "this procedure should never be called")))
+                                              (build-simple-array #(0 3) (λ: ([js : Indexes])
+                                                                           (error "this procedure should never be called")))))
+                 (block-diagonal-matrix (list (build-simple-array #(0 3) (λ: ([js : Indexes])
+                                                                           (error "this procedure should never be called")))
+                                              (build-simple-array #(2 0) (λ: ([js : Indexes])
+                                                                           (error "this procedure should never be called")))))]
+
+If @racket[Xs] is @racket[null], the result is an empty array with @tech{shape}
+@racket[#(0 0)].
+@examples[#:eval typed-eval
+                 (block-diagonal-matrix '())]
 }
 
 @define[vandermonde-url]{http://en.wikipedia.org/wiki/Vandermonde_matrix}
