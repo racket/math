@@ -214,7 +214,8 @@
  (block-diagonal-matrix (map (λ: ([i : Integer]) (matrix [[i]])) '(1 2 3 4)))
  (diagonal-matrix '(1 2 3 4)))
 
-(check-exn exn:fail:contract? (λ () (block-diagonal-matrix '())))
+(check-equal? (block-diagonal-matrix '())
+              (build-simple-array #(0 0) (λ (_) (error "This procedure should never be called"))))
 
 ;; Vandermonde matrix
 

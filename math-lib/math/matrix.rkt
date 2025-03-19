@@ -16,6 +16,7 @@
                     matrix-inverse
                     matrix-solve)
          (except-in "private/matrix/matrix-constructors.rkt"
+                    block-diagonal-matrix
                     vandermonde-matrix)
          (except-in "private/matrix/matrix-basic.rkt"
                     matrix-1norm
@@ -85,6 +86,9 @@
 (require/untyped-contract
  (begin (require "private/matrix/matrix-types.rkt"))
  "private/matrix/matrix-constructors.rkt"
+ [block-diagonal-matrix
+  (All (A) (case-> ((Listof (Matrix A)) -> (Matrix (U A 0)))
+                   ((Listof (Matrix A)) A -> (Matrix A))))]
  [vandermonde-matrix  ((Listof Number) Integer -> (Matrix Number))])
 
 (require/untyped-contract
@@ -188,6 +192,7 @@
          matrix-inverse
          matrix-solve
          ;; matrix-constructors.rkt
+         block-diagonal-matrix
          vandermonde-matrix
          ;; matrix-basic.rkt
          matrix-1norm
