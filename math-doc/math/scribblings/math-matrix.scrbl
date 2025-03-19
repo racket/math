@@ -2,7 +2,12 @@
 
 @(require scribble/eval
           racket/sandbox
-          (for-label racket/base racket/vector racket/match racket/unsafe/ops racket/string
+          (for-label racket/base
+                     racket/function
+                     racket/match
+                     racket/vector
+                     racket/string
+                     racket/unsafe/ops
                      (except-in racket/list permutations) ; FIXME
                      math plot
                      (only-in typed/racket/base
@@ -15,7 +20,8 @@
 
 @(define untyped-eval (make-untyped-math-eval))
 @interaction-eval[#:eval untyped-eval
-                         (require racket/match
+                         (require racket/function
+                                  racket/match
                                   racket/vector
                                   racket/string
                                   racket/sequence
@@ -23,7 +29,8 @@
 
 @(define typed-eval (make-math-eval))
 @interaction-eval[#:eval typed-eval
-                         (require racket/match
+                         (require racket/function
+                                  racket/match
                                   racket/vector
                                   racket/string
                                   racket/sequence
@@ -266,22 +273,24 @@ Returns an array with two-dimensional arrays @racket[Xs] along the diagonal and
 Empty two-dimensional arrays are valid inputs. They contribute to the resulting
 array's @tech{shape}.
 @examples[#:eval typed-eval
+                 (block-diagonal-matrix (list (build-simple-array #(2 0) (const 1))
+                                              (matrix [[6 7] [8 9]])))
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
-                                              (build-simple-array #(2 0) (λ: ([js : Indexes])
-                                                                           (error "this procedure should never be called")))
+                                              (build-simple-array #(2 0) (const 1))))
+                 (block-diagonal-matrix (list (build-simple-array #(0 2) (const 1))
+                                              (matrix [[6 7] [8 9]])))
+                 (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
+                                              (build-simple-array #(0 2) (const 1))))
+                 (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
+                                              (build-simple-array #(2 0) (const 1))
                                               (diagonal-matrix '(7 5 7))
-                                              (build-simple-array #(0 2) (λ: ([js : Indexes])
-                                                                           (error "this procedure should never be called")))
+                                              (build-simple-array #(0 2) (const 1))
                                               (col-matrix [1 2 3])
                                               (row-matrix [4 5 6])))
-                 (block-diagonal-matrix (list (build-simple-array #(2 0) (λ: ([js : Indexes])
-                                                                           (error "this procedure should never be called")))
-                                              (build-simple-array #(0 3) (λ: ([js : Indexes])
-                                                                           (error "this procedure should never be called")))))
-                 (block-diagonal-matrix (list (build-simple-array #(0 3) (λ: ([js : Indexes])
-                                                                           (error "this procedure should never be called")))
-                                              (build-simple-array #(2 0) (λ: ([js : Indexes])
-                                                                           (error "this procedure should never be called")))))]
+                 (block-diagonal-matrix (list (build-simple-array #(2 0) (const 1))
+                                              (build-simple-array #(0 3) (const 1))))
+                 (block-diagonal-matrix (list (build-simple-array #(0 3) (const 1))
+                                              (build-simple-array #(2 0) (const 1))))]
 
 If @racket[Xs] is @racket[null], the result is an empty array with @tech{shape}
 @racket[#(0 0)].

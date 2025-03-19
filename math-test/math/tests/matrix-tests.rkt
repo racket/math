@@ -194,11 +194,9 @@
 (check-equal?
  (block-diagonal-matrix
   (list (matrix [[1 2] [3 4]])
-        (build-simple-array #(2 0) (λ: ([js : Indexes])
-                                     (error "this procedure should never be called")))
+        (build-simple-array #(2 0) (const 1))
         (matrix [[1 2 3] [4 5 6]])
-        (build-simple-array #(0 2) (λ: ([js : Indexes])
-                                     (error "this procedure should never be called")))
+        (build-simple-array #(0 2) (const 1))
         (matrix [[1] [3] [5]])
         (matrix [[2 4 6]])))
  (matrix [[1 2 0 0 0 0 0 0 0 0 0]
