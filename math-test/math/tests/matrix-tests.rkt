@@ -194,9 +194,9 @@
 (check-equal?
  (block-diagonal-matrix
   (list (matrix [[1 2] [3 4]])
-        (build-simple-array #(2 0) (const 1))
+        (make-array #(2 0) 1)
         (matrix [[1 2 3] [4 5 6]])
-        (build-simple-array #(0 2) (const 1))
+        (make-array #(0 2) 1)
         (matrix [[1] [3] [5]])
         (matrix [[2 4 6]])))
  (matrix [[1 2 0 0 0 0 0 0 0 0 0]

@@ -3,7 +3,6 @@
 @(require scribble/eval
           racket/sandbox
           (for-label racket/base
-                     racket/function
                      racket/match
                      racket/vector
                      racket/string
@@ -20,8 +19,7 @@
 
 @(define untyped-eval (make-untyped-math-eval))
 @interaction-eval[#:eval untyped-eval
-                         (require racket/function
-                                  racket/match
+                         (require racket/match
                                   racket/vector
                                   racket/string
                                   racket/sequence
@@ -29,8 +27,7 @@
 
 @(define typed-eval (make-math-eval))
 @interaction-eval[#:eval typed-eval
-                         (require racket/function
-                                  racket/match
+                         (require racket/match
                                   racket/vector
                                   racket/string
                                   racket/sequence
@@ -273,24 +270,24 @@ Returns an array with two-dimensional arrays @racket[Xs] along the diagonal and
 Empty two-dimensional arrays are valid inputs. They contribute to the resulting
 array's @tech{shape}.
 @examples[#:eval typed-eval
-                 (block-diagonal-matrix (list (build-simple-array #(2 0) (const 1))
+                 (block-diagonal-matrix (list (make-array #(2 0) 1)
                                               (matrix [[6 7] [8 9]])))
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
-                                              (build-simple-array #(2 0) (const 1))))
-                 (block-diagonal-matrix (list (build-simple-array #(0 2) (const 1))
+                                              (make-array #(2 0) 1)))
+                 (block-diagonal-matrix (list (make-array #(0 2) 1)
                                               (matrix [[6 7] [8 9]])))
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
-                                              (build-simple-array #(0 2) (const 1))))
+                                              (make-array #(0 2) 1)))
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
-                                              (build-simple-array #(2 0) (const 1))
+                                              (make-array #(2 0) 1)
                                               (diagonal-matrix '(7 5 7))
-                                              (build-simple-array #(0 2) (const 1))
+                                              (make-array #(0 2) 1)
                                               (col-matrix [1 2 3])
                                               (row-matrix [4 5 6])))
-                 (block-diagonal-matrix (list (build-simple-array #(2 0) (const 1))
-                                              (build-simple-array #(0 3) (const 1))))
-                 (block-diagonal-matrix (list (build-simple-array #(0 3) (const 1))
-                                              (build-simple-array #(2 0) (const 1))))]
+                 (block-diagonal-matrix (list (make-array #(2 0) 1)
+                                              (make-array #(0 3) 1)))
+                 (block-diagonal-matrix (list (make-array #(0 3) 1)
+                                              (make-array #(2 0) 1)))]
 
 If @racket[Xs] is @racket[null], the result is an empty array with @tech{shape}
 @racket[#(0 0)].
