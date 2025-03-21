@@ -85,16 +85,19 @@
 ;; ===================================================================================================
 ;; Block diagonal matrices
 
-(: block-diagonal-matrix/zero* (All (A) (Vectorof (Matrix A)) A -> (Matrix A)))
+(: block-diagonal-matrix/zero* (All (A) (Vectorof (Array A)) A -> (Array A)))
 (define (block-diagonal-matrix/zero* as zero)
   (define num (vector-length as))
   (define-values (ms ns)
-    (let-values ([(ms ns)  (for/fold: ([ms : (Listof Index)  empty]
-                                       [ns : (Listof Index)  empty]
-                                       ) ([a  (in-vector as)])
-                             (define-values (m n) (matrix-shape a))
-                             (values (cons m ms) (cons n ns)))])
-      (values (reverse ms) (reverse ns))))
+    (for/foldr: ([ms : (Listof Index)  empty]
+                 [ns : (Listof Index)  empty]
+                 ) ([a  (in-vector as)])
+      (define ds (array-shape a))
+      (unless (= 2 (vector-length ds))
+        (raise-argument-error 'block-diagonal-matrix "two-dimensional array" a))
+      (define m (vector-ref ds 0))
+      (define n (vector-ref ds 1))
+      (values (cons m ms) (cons n ns))))
   (define res-m (assert (apply + ms) index?))
   (define res-n (assert (apply + ns) index?))
   (define vs ((inst make-vector Index) res-m 0))
@@ -136,19 +139,24 @@
             [else
              zero])))))
 
-(: block-diagonal-matrix/zero (All (A) ((Listof (Matrix A)) A -> (Matrix A))))
-(define (block-diagonal-matrix/zero as zero)
-  (let ([as  (list->vector as)])
-    (define num (vector-length as))
-    (cond [(= num 0)
-           (raise-argument-error 'block-diagonal-matrix/zero "nonempty List" as)]
-          [(= num 1)
-           (unsafe-vector-ref as 0)]
-          [else
-           (block-diagonal-matrix/zero* as zero)])))
+(: block-diagonal-matrix/zero (All (A) (case-> (Null Any -> (Array Nothing))
+                                               ((Listof (Array A)) A -> (Array A)))))
+(define block-diagonal-matrix/zero
+  (let ([id  (build-simple-array #(0 0) (λ: ([js : Indexes])
+                                          (error "this procedure should never be called")))])
+    (λ (as zero)
+      (if (null? as)
+          id
+          (let ([as  (list->vector as)])
+            (define num (vector-length as))
+            (cond [(= num 1)
+                   (unsafe-vector-ref as 0)]
+                  [else
+                   (block-diagonal-matrix/zero* as zero)]))))))
 
-(: block-diagonal-matrix (All (A) (case-> ((Listof (Matrix A)) -> (Matrix (U A 0)))
-                                          ((Listof (Matrix A)) A -> (Matrix A)))))
+(: block-diagonal-matrix (All (A) (case-> (Null -> (Array Nothing))
+                                          ((Listof (Array A)) -> (Array (U A 0)))
+                                          ((Listof (Array A)) A -> (Array A)))))
 (define block-diagonal-matrix
   (case-lambda
     [(as)  (block-diagonal-matrix/zero as 0)]

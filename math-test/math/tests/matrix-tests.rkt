@@ -192,10 +192,30 @@
           [0 0 0 0 0 0 2 4 6]]))
 
 (check-equal?
+ (block-diagonal-matrix
+  (list (matrix [[1 2] [3 4]])
+        (make-array #(2 0) 1)
+        (matrix [[1 2 3] [4 5 6]])
+        (make-array #(0 2) 1)
+        (matrix [[1] [3] [5]])
+        (matrix [[2 4 6]])))
+ (matrix [[1 2 0 0 0 0 0 0 0 0 0]
+          [3 4 0 0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0 0 0 0]
+          [0 0 1 2 3 0 0 0 0 0 0]
+          [0 0 4 5 6 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 1 0 0 0]
+          [0 0 0 0 0 0 0 3 0 0 0]
+          [0 0 0 0 0 0 0 5 0 0 0]
+          [0 0 0 0 0 0 0 0 2 4 6]]))
+
+(check-equal?
  (block-diagonal-matrix (map (λ: ([i : Integer]) (matrix [[i]])) '(1 2 3 4)))
  (diagonal-matrix '(1 2 3 4)))
 
-(check-exn exn:fail:contract? (λ () (block-diagonal-matrix '())))
+(check-equal? (block-diagonal-matrix '())
+              (build-simple-array #(0 0) (λ (_) (error "This procedure should never be called"))))
 
 ;; Vandermonde matrix
 

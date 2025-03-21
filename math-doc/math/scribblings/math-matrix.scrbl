@@ -2,7 +2,11 @@
 
 @(require scribble/eval
           racket/sandbox
-          (for-label racket/base racket/vector racket/match racket/unsafe/ops racket/string
+          (for-label racket/base
+                     racket/match
+                     racket/vector
+                     racket/string
+                     racket/unsafe/ops
                      (except-in racket/list permutations) ; FIXME
                      math plot
                      (only-in typed/racket/base
@@ -250,10 +254,10 @@ The length of @racket[xs] must be positive.
 
 @define[block-diagonal-url]{http://en.wikipedia.org/wiki/Block_matrix#Block_diagonal_matrices}
 
-@defproc[(block-diagonal-matrix [Xs (Listof (Matrix A))] [zero A 0]) (Matrix A)]{
+@defproc[(block-diagonal-matrix [Xs (Listof (Array A))] [zero A 0]) (Array A)]{
 @margin-note*{@hyperlink[block-diagonal-url]{Wikipedia: Block-diagonal matrices}}
-Returns a matrix with matrices @racket[Xs] along the diagonal and @racket[zero] everywhere else.
-The length of @racket[Xs] must be positive.
+Returns an array with two-dimensional arrays @racket[Xs] along the diagonal and
+@racket[zero] everywhere else.
 @examples[#:eval typed-eval
                  (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
                                               (diagonal-matrix '(7 5 7))
@@ -262,6 +266,33 @@ The length of @racket[Xs] must be positive.
                  (block-diagonal-matrix (list (make-matrix 2 2 2.0+3.0i)
                                               (make-matrix 2 2 5.0+7.0i))
                                         0.0+0.0i)]
+
+Empty two-dimensional arrays are valid inputs. They contribute to the resulting
+array's @tech{shape}.
+@examples[#:eval typed-eval
+                 (block-diagonal-matrix (list (make-array #(2 0) 1)
+                                              (matrix [[6 7] [8 9]])))
+                 (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
+                                              (make-array #(2 0) 1)))
+                 (block-diagonal-matrix (list (make-array #(0 2) 1)
+                                              (matrix [[6 7] [8 9]])))
+                 (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
+                                              (make-array #(0 2) 1)))
+                 (block-diagonal-matrix (list (matrix [[6 7] [8 9]])
+                                              (make-array #(2 0) 1)
+                                              (diagonal-matrix '(7 5 7))
+                                              (make-array #(0 2) 1)
+                                              (col-matrix [1 2 3])
+                                              (row-matrix [4 5 6])))
+                 (block-diagonal-matrix (list (make-array #(2 0) 1)
+                                              (make-array #(0 3) 1)))
+                 (block-diagonal-matrix (list (make-array #(0 3) 1)
+                                              (make-array #(2 0) 1)))]
+
+If @racket[Xs] is @racket[null], the result is an empty array with @tech{shape}
+@racket[#(0 0)].
+@examples[#:eval typed-eval
+                 (block-diagonal-matrix '())]
 }
 
 @define[vandermonde-url]{http://en.wikipedia.org/wiki/Vandermonde_matrix}
