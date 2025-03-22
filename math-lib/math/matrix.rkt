@@ -17,7 +17,6 @@
                     matrix-solve)
          (except-in "private/matrix/matrix-constructors.rkt"
                     block-diagonal-matrix
-                    block-diagonal-matrix/zero
                     vandermonde-matrix)
          (except-in "private/matrix/matrix-basic.rkt"
                     matrix-1norm
@@ -90,8 +89,6 @@
  [block-diagonal-matrix
   (All (A) (case-> ((Listof (Matrix A)) -> (Matrix (U A 0)))
                    ((Listof (Matrix A)) A -> (Matrix A))))]
- [block-diagonal-matrix/zero
-  (All (A) ((Listof (Matrix A)) A -> (Matrix A)))]
  [vandermonde-matrix  ((Listof Number) Integer -> (Matrix Number))])
 
 (require/untyped-contract
@@ -196,7 +193,6 @@
          matrix-solve
          ;; matrix-constructors.rkt
          block-diagonal-matrix
-         block-diagonal-matrix/zero
          vandermonde-matrix
          ;; matrix-basic.rkt
          matrix-1norm
