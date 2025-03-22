@@ -5,6 +5,8 @@
          math/private/unsafe)
 
 (provide vector-swap!
+         vector-generic-scale!
+         vector-generic-scaled-add!
          vector-scale!
          vector-scaled-add!
          vector-mag^2
