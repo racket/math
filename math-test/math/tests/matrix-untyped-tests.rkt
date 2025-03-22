@@ -9,7 +9,8 @@
 
 (begin-for-syntax
   (define exceptions (list 'matrix 'col-matrix 'row-matrix
-                           'matrix-determinant/row-reduction))
+                           'matrix-determinant/row-reduction
+                           'block-diagonal-matrix/zero))
   
   (define (looks-like-value? sym)
     (define str (symbol->string sym))
