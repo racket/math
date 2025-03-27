@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4.2.2
       - name: Register local packages
         run: |
-          raco pkg install -i --auto --no-setup --skip-installed math-test
+          raco pkg install -i --auto --no-setup --skip-installed math-test math
           raco pkg update --auto --no-setup source-syntax math-lib math-doc math math-test
       - run: raco setup --check-pkg-deps math math-test
       - run: raco test math-test
