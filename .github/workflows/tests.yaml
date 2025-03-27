@@ -3,26 +3,21 @@ on: [push]
 
 jobs:
   build:
-    name: Rackunit tests
+    name: "Build on Racket '${{ matrix.racket-version }}' (${{ matrix.racket-variant }})"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        racket-version: ["8.0", "8.1", "current"]
+        racket-variant: ["BC", "CS"]
     steps:
       - name: "Install MPFR"
         run: sudo apt-get install -y libmpfr6 libmpfr-dev
       - uses: Bogdanp/setup-racket@v1.11
         with:
           architecture: x64
-          distribution: minimal
-          variant: 'CS'
-          version: current
-          sudo: never
-          dest: '"${HOME}/racketdist"'
-          local_catalogs: $GITHUB_WORKSPACE
-      - name: Check Racket version
-        run: racket -v
-      - uses: actions/checkout@v4.2.2
-      - name: Register local packages
-        run: |
-          raco pkg install -i --auto --no-setup --skip-installed math-test math
-          raco pkg update --auto --no-setup source-syntax math-lib math-doc math math-test
-      - run: raco setup --check-pkg-deps math
-      - run: raco test math-test
+          distribution: full
+          variant: ${{ matrix.racket-variant }}
+          version: ${{ matrix.racket-version }}
+      - run: sudo raco pkg update --name math-lib --link --batch --auto math-lib/
+      - run: sudo raco pkg install --batch --auto math-test/
+      - run: raco test --drdr math-test/
