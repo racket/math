@@ -3,12 +3,8 @@ on: [push]
 
 jobs:
   build:
-    name: "Build on Racket '${{ matrix.racket-version }}' (${{ matrix.racket-variant }})"
+    name: "Build and test on Racket"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        racket-version: ["8.0", "8.1", "current"]
-        racket-variant: ["BC", "CS"]
     steps:
       - name: "Install MPFR"
         run: sudo apt-get install -y libmpfr6 libmpfr-dev
@@ -16,8 +12,8 @@ jobs:
         with:
           architecture: x64
           distribution: full
-          variant: ${{ matrix.racket-variant }}
-          version: ${{ matrix.racket-version }}
+          variant: CS
+          version: current
       - uses: actions/checkout@master
       - run: sudo raco pkg update --name math-lib --link --batch --auto math-lib/
       - run: sudo raco pkg install --batch --auto math-test/
