@@ -18,6 +18,7 @@ jobs:
           distribution: full
           variant: ${{ matrix.racket-variant }}
           version: ${{ matrix.racket-version }}
+      - uses: actions/checkout@master
       - run: sudo raco pkg update --name math-lib --link --batch --auto math-lib/
       - run: sudo raco pkg install --batch --auto math-test/
       - run: raco test --drdr math-test/
