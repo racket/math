@@ -1,0 +1,28 @@
+name: Racket unit tests
+on: [push]
+
+jobs:
+  build:
+    name: Rackunit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Install MPFR"
+        run: sudo apt-get install -y libmpfr6 libmpfr-dev
+      - uses: Bogdanp/setup-racket@v1.11
+        with:
+          architecture: x64
+          distribution: minimal
+          variant: 'CS'
+          version: current
+          sudo: never
+          dest: '"${HOME}/racketdist"'
+          local_catalogs: $GITHUB_WORKSPACE
+      - name: Check Racket version
+        run: racket -v
+      - uses: actions/checkout@v4.2.2
+      - name: Register local packages
+        run: |
+          raco pkg install -i --auto --no-setup --skip-installed math-test
+          raco pkg update --auto --no-setup source-syntax math-lib math-doc math math-test
+      - run: raco setup --check-pkg-deps math math-test
+      - run: raco test math-test
