@@ -5,14 +5,21 @@
 (provide random-bits random-natural random-integer)
 
 ;; Random bits are taken in blocks of this size:
-(define block-bits 29)
-(define block-size (arithmetic-shift 1 block-bits))
+(define block-bits : Nonnegative-Fixnum 29)
+(define block-size : Natural (arithmetic-shift 1 block-bits))
 
 (: random-bits (case-> (Integer -> Natural)
                        (Integer Pseudo-Random-Generator -> Natural)))
 (define (random-bits bits [prng (current-pseudo-random-generator)])
   (cond [(bits . < . 0)  (raise-argument-error 'random-bits "Non-Negative-Integer" bits)]
         [(bits . = . 0) 0]
+        [(not (fixnum? bits))  (raise-argument-error 'random-bits "reasonably sized integer" bits)]
+        [(bits . <= . block-bits)  (random (ann (fxlshift 1 bits) Nonnegative-Fixnum) prng)]
+        [(bits . <= . (fx* 2 block-bits))
+	 ;; this case is not always in the fixnum range on 32-bit platforms
+         (define rem-bits (fx- bits block-bits))
+         (bitwise-ior (arithmetic-shift (random block-size prng) rem-bits)
+		      (random (ann (fxlshift 1 rem-bits) Nonnegative-Fixnum) prng))]
         [else
          (define max-blocks (assert (quotient bits block-bits) index?))
          (define rem-bits (remainder bits block-bits))
