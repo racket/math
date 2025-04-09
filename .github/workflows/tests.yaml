@@ -7,16 +7,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Install MPFR"
-        run: sudo apt-get install -y libmpfr6 libmpfr-dev
-      - uses: Bogdanp/setup-racket@v1.11
+        run: sudo apt-get update && sudo apt-get install -y libmpfr6 libmpfr-dev
+      - uses: Bogdanp/setup-racket@v1.12
         with:
           architecture: x64
           distribution: full
           variant: CS
           version: current
+          sudo: never
+          dest: '"${HOME}/racket"'
       - uses: actions/checkout@master
-      - run: sudo raco pkg install --scope installation eli-tester
-      - run: sudo raco pkg update --no-setup --name math-lib --link --batch --auto math-lib/
-      - run: sudo raco setup math
-      - run: sudo raco pkg install --link --batch --auto math-test/
+      - run: raco pkg update --no-setup --name math-lib --link --batch --auto math-lib/
+      - run: raco pkg install --no-setup --scope installation --link --batch --auto math-test/
+      - run: raco setup math
       - run: raco test --drdr math-test/
