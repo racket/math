@@ -17,5 +17,6 @@ jobs:
       - uses: actions/checkout@master
       - run: sudo raco pkg update --no-setup --name math-lib --link --batch --auto math-lib/
       - run: sudo raco setup math
+      - run: sudo raco pkg update --no-setup --name eli-tester --link --batch --auto eli-tester/
       - run: sudo raco pkg install --link --batch --auto math-test/
       - run: raco test --drdr math-test/
