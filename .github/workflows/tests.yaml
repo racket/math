@@ -1,0 +1,22 @@
+name: Racket unit tests
+on: [push]
+
+jobs:
+  build:
+    name: "Build and test on Racket"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Install MPFR"
+        run: sudo apt-get install -y libmpfr6 libmpfr-dev
+      - uses: Bogdanp/setup-racket@v1.11
+        with:
+          architecture: x64
+          distribution: full
+          variant: CS
+          version: current
+      - uses: actions/checkout@master
+      - run: sudo raco pkg install --scope installation eli-tester
+      - run: sudo raco pkg update --no-setup --name math-lib --link --batch --auto math-lib/
+      - run: sudo raco setup math
+      - run: sudo raco pkg install --link --batch --auto math-test/
+      - run: raco test --drdr math-test/
