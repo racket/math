@@ -24,7 +24,6 @@
                  [else  r]))]))
 
 (define random-max 4294967087)
-(define bias-bits (* 2 block-bits))
 
 (: random-natural (Integer -> Natural))
 ;; Returns a random integer in the interval [0..n)
@@ -33,15 +32,9 @@
     [(n . <= . 0)  (raise-argument-error 'random-natural "Positive-Integer" n)]
     [(n . <= . random-max)  (random n)]
     [else
-     ;; Rejection sampling has rejection probability approaching 1/2 in the worst cases; that is,
-     ;; when n = 1+2^i for some large-ish integer i
-     ;; Adding extra bits shrinks the rejection probability to near zero (it approaches
-     ;; (* 1/2 (expt 2 (- bias-bits)))), at the cost of some bias
-     ;; The bias starts become detectable after taking (expt 2 bias-bits) samples, which is plenty
-     (define bits (+ bias-bits (integer-length (- n 1))))
-     (define m (arithmetic-shift 1 bits))
+     (define bits (integer-length (- n 1)))
      (let loop ()
-       (define r (quotient (* (+ (random-bits bits) 1) n) m))
+       (define r (random-bits bits))
        (if (r . >= . n) (loop) r))]))
 
 (: random-integer (Integer Integer -> Integer))
