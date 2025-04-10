@@ -82,23 +82,29 @@ Like @racket[(apply + xs)], but incurs rounding error only once when adding inex
 
 @section{Random Number Generation}
 
-@defproc[(random-natural [k Integer]) Natural]{
+@defproc[(random-natural [k Integer] [p Pseudo-Random-Generator (current-pseudo-random-generator)]) Natural]{
 Returns a random natural number less than @racket[k], which must be positive.
 Use @racket[(random-natural k)] instead of @racket[(random k)] when @racket[k]
 could be larger than @racket[4294967087].
+
+Uses @racket[p] for the underlying generation of randomness. 
 }
 
-@defproc[(random-integer [a Integer] [b Integer]) Integer]{
+@defproc[(random-integer [a Integer] [b Integer] [p Pseudo-Random-Generator (current-pseudo-random-generator)]) Integer]{
 Returns a random integer @racket[n] such that @racket[(a . <= . n)] and @racket[(n . < . b)].
+
+Uses @racket[p] for the underlying generation of randomness. 
 }
 
-@defproc[(random-bits [num Integer]) Natural]{
+@defproc[(random-bits [num Integer] [p Pseudo-Random-Generator (current-pseudo-random-generator)]) Natural]{
 Returns a random natural smaller than @racket[(expt 2 num)]; @racket[num] must be non-negative.
 For powers of two, this is faster than using @racket[random-natural], which
 is implemented in terms of @racket[random-bits], using biased rejection sampling.
 
 As an example of use, the significands of the numbers returned by @racket[bfrandom]
 are chosen by @racket[(random-bits (bf-precision))].
+
+Uses @racket[p] for the underlying generation of randomness. 
 }
 
 
