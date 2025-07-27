@@ -11,7 +11,8 @@
                ("math-win32-i386" #:platform "win32\\i386")
                ("math-win32-x86_64" #:platform "win32\\x86_64")
                ("math-win32-arm64" #:platform "win32\\arm64")
-               ("math-x86_64-linux-natipkg" #:platform "x86_64-linux-natipkg")))
+               ("math-x86_64-linux-natipkg" #:platform "x86_64-linux-natipkg")
+               ("math-aarch64-linux-natipkg" #:platform "aarch64-linux-natipkg")))
 
 (define build-deps '())
 
