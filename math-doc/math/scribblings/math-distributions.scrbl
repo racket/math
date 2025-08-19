@@ -682,10 +682,10 @@ which is the square of standard deviation. Construct normal distributions from v
 @margin-note{Wikipedia:
              @hyperlink["https://en.wikipedia.org/wiki/Student's_t-distribution"]{Student-t Distribution}.}
 @deftogether[(@defidform[Student-t-Dist]
-              @defproc[(student-t-dist [freedom Positive-Real] [mean Real 0] [scale Real 1]) Normal-Dist]
-              @defproc[(student-t-dist-freedom [d Normal-Dist]) Positive-Flonum]
-              @defproc[(student-t-dist-mean [d Normal-Dist]) Flonum]
-              @defproc[(student-t-dist-scale [d Normal-Dist]) Flonum])]{
+              @defproc[(student-t-dist [freedom Positive-Real] [mean Real 0] [scale Real 1]) Student-t-Dist]
+              @defproc[(student-t-dist-freedom [d Student-t-Dist]) Positive-Flonum]
+              @defproc[(student-t-dist-mean [d Student-t-Dist]) Real]
+              @defproc[(student-t-dist-scale [d Student-t-Dist]) Real])]{
 Represents the student-t distribution family parameterized by degree of freedom, mean (also called ``location'') and scale.
 
 @examples[#:eval untyped-eval
