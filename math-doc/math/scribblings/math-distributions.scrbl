@@ -619,6 +619,41 @@ choice is
 Therefore, a gamma distribution with @racket[shape = 0] behaves like @racket[(delta-dist 0)].
 }
 
+@subsection{Weibull Distributions}
+
+@margin-note{Wikipedia:
+             @hyperlink["http://wikipedia.org/wiki/Weibull_distribution"]{Weibull Distribution}.}
+@deftogether[(@defidform[Weibull-Dist]
+              @defproc[(weibull-dist [shape Positive-Real] [location Real 0] [scale Real 1]) Weibull-Dist]
+              @defproc[(weibull-dist-shape [k Weibull-Dist]) Positive-Flonum]
+              @defproc[(weibull-dist-location [d Weibull-Dist]) Real]
+              @defproc[(weibull-dist-scale [d Weibull-Dist]) Real])]{
+Represents the Weibull distribution family parameterized by shape, location and scale.
+
+@examples[#:eval untyped-eval
+                 (plot (for/list ([k  (in-list '(1/2 1 1 5))]
+                                  [d  (in-list '(0 0 3/2 0))]
+                                  [s  (in-list '(1 1 2 1))]
+                                  [i  (in-naturals)])
+                         (function (distribution-pdf (weibull-dist k d s))
+                                   #:color i #:label (if (and (= d 0) (= s 1))
+                                                         (format "Weibull(~a)" k)
+                                                         (format "Weibull(~a,~a,~a)" k d s))))
+                       #:x-min 0 #:x-max 6 #:y-label "density"
+                       #:legend-anchor 'top-right)
+                 
+                 (plot (for/list ([k  (in-list '(1/2 1 1 5))]
+                                  [d  (in-list '(0 0 3/2 0))]
+                                  [s  (in-list '(1 1 2 1))]
+                                  [i  (in-naturals)])
+                         (function (ordered-dist-cdf (weibull-dist k d s))
+                                   #:color i #:label (if (and (= d 0) (= s 1))
+                                                         (format "Weibull(~a)" k)
+                                                         (format "Weibull(~a,~a,~a)" k d s))))
+                       #:x-min 0 #:x-max 10 #:y-label "probability"
+                       #:legend-anchor 'bottom-right)]
+}
+
 @subsection{Logistic Distributions}
 
 @margin-note{Wikipedia:
