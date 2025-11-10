@@ -1331,7 +1331,7 @@ Almost all array transformations, including @secref{array:slicing}, are implemen
 
 @defproc[(array-append* [arrs (Listof (Array A))] [k Integer 0]) (Array A)]{
 Appends the arrays in @racket[arrs] along axis @racket[k]. If the arrays' shapes are not
-the same, they are @tech{broadcast} first.
+the same, they are first @tech{broadcast} along all axes (except the @racket[k]th).
 @examples[#:eval typed-eval
                  (define arr (array #[#[0 1] #[2 3]]))
                  (define brr (array #[#['a 'b] #['c 'd]]))
