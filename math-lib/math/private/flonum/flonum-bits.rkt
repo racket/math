@@ -99,11 +99,21 @@
   (: flprev (Flonum -> Flonum))
   (define (flprev x) (flstep x -1))
   
-  (: flonums-between (Flonum Flonum -> Integer))
-  (define (flonums-between x y)
-    (- (flonum->ordinal y) (flonum->ordinal x)))
-  
   )  ; begin-encourage-inline
+
+(: flonum->chunks (-> Flonum (Values Integer Integer)))
+(define (flonum->chunks x)
+  (define neg? (fl< x 0.0))
+  (define ax (flabs x))
+  (if neg?
+      (values (- (flbit-field ax 0 32)) (- (flbit-field ax 32 64)))
+      (values (flbit-field ax 0 32) (flbit-field ax 32 64))))
+
+(: flonums-between (Flonum Flonum -> Integer))
+(define (flonums-between x y)
+  (define-values (xlo xhi) (flonum->chunks x))
+  (define-values (ylo yhi) (flonum->chunks y))
+  (+ (arithmetic-shift (- yhi xhi) 32) (- ylo xlo)))
   
 (: flulp (Flonum -> (U Flonum-Nan Nonnegative-Flonum)))
 (define (flulp x)

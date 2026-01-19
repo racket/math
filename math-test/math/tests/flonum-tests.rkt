@@ -144,6 +144,12 @@
   (check-equal? (flulp-error x (flnext x)) 1.0
                 (format "x = ~a" x)))
 
+(for ([_  (in-range 1000)])
+  (define x (ordinal->flonum (random-integer (flonum->ordinal -inf.0) (flonum->ordinal +inf.0))))
+  (define y (ordinal->flonum (random-integer (flonum->ordinal -inf.0) (flonum->ordinal +inf.0))))
+  (check-equal? (flonums-between x y)
+                (- (flonum->ordinal y) (flonum->ordinal x))))
+
 ;; ===================================================================================================
 ;; fllog2
 
