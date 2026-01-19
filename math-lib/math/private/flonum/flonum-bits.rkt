@@ -2,6 +2,8 @@
 
 (require racket/flonum
          racket/performance-hint)
+(require/typed racket/flonum
+  [flbit-field (-> Flonum Byte Byte Natural)])
 
 (provide flonum->bit-field bit-field->flonum
          flonum->fields fields->flonum
