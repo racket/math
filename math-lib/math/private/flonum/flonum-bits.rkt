@@ -12,8 +12,7 @@
 
 (: flonum->bit-field (Flonum -> Natural))
 (define (flonum->bit-field x)
-  (assert (integer-bytes->integer (real->floating-point-bytes x (ann 8 8)) #f)
-          exact-nonnegative-integer?))
+  (flbit-field x 0 64))
 
 (: bit-field->flonum (Integer -> Flonum))
 (define (bit-field->flonum i)
@@ -30,10 +29,9 @@
 
 (: flonum->fields (Flonum -> (Values (U 0 1) Index Natural)))
 (define (flonum->fields x)
-  (define n (flonum->bit-field x))
-  (values (if (zero? (bitwise-bit-field n 63 64)) 0 1)
-          (assert (bitwise-bit-field n 52 63) index?)
-          (bitwise-bit-field n 0 52)))
+  (values (if (zero? (flbit-field x 63 64)) 0 1)
+          (assert (flbit-field x 52 63) index?)
+          (flbit-field x 0 52)))
 
 (: fields->flonum (Integer Integer Integer -> Flonum))
 (define (fields->flonum s e m)
@@ -66,8 +64,8 @@
 
 (: flonum->ordinal (Flonum -> Integer))
 (define (flonum->ordinal x)
-  (cond [(x . fl< . 0.0)  (- (flonum->bit-field (fl- 0.0 x)))]
-        [else             (flonum->bit-field (flabs x))])) ; abs for -0.0
+  (cond [(x . fl< . 0.0)  (- (flbit-field (fl- 0.0 x) 0 64))]
+        [else             (flbit-field (flabs x) 0 64)])) ; abs for -0.0
 
 (: ordinal->flonum (Integer -> Flonum))
 (define (ordinal->flonum i)
@@ -99,11 +97,21 @@
   (: flprev (Flonum -> Flonum))
   (define (flprev x) (flstep x -1))
   
-  (: flonums-between (Flonum Flonum -> Integer))
-  (define (flonums-between x y)
-    (- (flonum->ordinal y) (flonum->ordinal x)))
-  
   )  ; begin-encourage-inline
+
+(: flonum->chunks (-> Flonum (Values Integer Integer)))
+(define (flonum->chunks x)
+  (define neg? (fl< x 0.0))
+  (define ax (flabs x))
+  (if neg?
+      (values (- (flbit-field ax 0 32)) (- (flbit-field ax 32 64)))
+      (values (flbit-field ax 0 32) (flbit-field ax 32 64))))
+
+(: flonums-between (Flonum Flonum -> Integer))
+(define (flonums-between x y)
+  (define-values (xlo xhi) (flonum->chunks x))
+  (define-values (ylo yhi) (flonum->chunks y))
+  (+ (arithmetic-shift (- yhi xhi) 32) (- ylo xlo)))
   
 (: flulp (Flonum -> (U Flonum-Nan Nonnegative-Flonum)))
 (define (flulp x)
