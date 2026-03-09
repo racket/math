@@ -686,8 +686,11 @@
 (for: ([i (in-range 10)])
       (define n (+ 1 (random 3)))
       (define m (+ 1 (random 4)))
-      (define A (random-matrix n m))
-      (define B (random-matrix n m))
+      (define (non-zero-random-matrix [n : Integer] [m : Integer]) : (Array Integer)
+        (define A (random-matrix n m))
+        (if (matrix-zero? A) (non-zero-random-matrix n m) A))
+      (define A (non-zero-random-matrix n m))
+      (define B (non-zero-random-matrix n m))
       (define ca (matrix-cos-angle A B))
       (check-true (or (and (rational? ca) (<= ca 1.))
                       (matrix-zero? A) (matrix-zero? B))))
@@ -714,6 +717,8 @@
                                 (matrix [[3 -8+inf.0i]]))
               (matrix-cos-angle (matrix [[2 9]])
                                 (matrix [[0. -0+1.0i]])))
+(check-exn #px"matrix-cos-angle: non-zero matrix " (λ () (matrix-cos-angle (matrix [[0 0][0 0]]) (matrix [[3 1][-1 2]]))))
+(check-exn #px"matrix-cos-angle: non-zero matrix " (λ () (matrix-angle (matrix [[1]]) (matrix [[0]]))))
 
 ;; TODO: matrix-normalize
 

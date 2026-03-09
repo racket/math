@@ -355,7 +355,10 @@
      
          (inner A* B*)]
         [(or (nan? mxA) (nan? mxB) (= 0 mxA) (= 0 mxB))
-         (/ (matrix-dot A B) (* mxA mxB))]
+         (cond
+           [(eqv? mxA 0) (error 'matrix-cos-angle "non-zero matrix ~a" A)]
+           [(eqv? mxB 0) (error 'matrix-cos-angle "non-zero matrix ~a" B)]
+           [else         (/ (matrix-dot A B) (* mxA mxB))])]
         [else
          (define A* (if (rational? mxA)
                         (inline-array-map (λ (x) (/ x mxA)) A)
