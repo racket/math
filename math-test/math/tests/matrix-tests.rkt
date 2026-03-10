@@ -717,8 +717,8 @@
                                 (matrix [[3 -8+inf.0i]]))
               (matrix-cos-angle (matrix [[2 9]])
                                 (matrix [[0. -0+1.0i]])))
-(check-exn #px"matrix-cos-angle: non-zero matrix " (λ () (matrix-cos-angle (matrix [[0 0][0 0]]) (matrix [[3 1][-1 2]]))))
-(check-exn #px"matrix-cos-angle: non-zero matrix " (λ () (matrix-angle (matrix [[1]]) (matrix [[0]]))))
+(check-exn #px"matrix-cos-angle: zero matrix " (λ () (matrix-cos-angle (matrix [[0 0][0 0]]) (matrix [[3 1][-1 2]]))))
+(check-exn #px"matrix-cos-angle: zero matrix " (λ () (matrix-angle (matrix [[1]]) (matrix [[0]]))))
 
 ;; TODO: matrix-normalize
 
