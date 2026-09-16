@@ -12,7 +12,7 @@
          flsubnormal? flrational? flinfinite? flnan? flinteger?
          flnext* flprev*
          flulp-error
-         fleven? flodd? flsgn flhypot fllog/base
+         fleven? flodd? flsgn fllog/base
          flprobability?
          flsinpix flcospix fltanpix flcscpix flsecpix flcotpix)
 
@@ -125,18 +125,6 @@
       (and (x . fl>= . 1.0) (x . fl<= . last-odd)
            (let ([0.5x  (fl* 0.5 (fl+ 1.0 x))])
              (fl= (truncate 0.5x) 0.5x)))))
-  
-  (: flhypot (Flonum Flonum -> Flonum))
-  (define (flhypot x y)
-    (define xa (flabs x))
-    (define ya (flabs y))
-    (let ([xa  (flmin xa ya)]
-          [ya  (flmax xa ya)])
-      (cond [(fl= xa 0.0)  ya]
-            [(flrational? ya)
-             (define u (fl/ xa ya))
-             (fl* ya (flsqrt (fl+ 1.0 (fl* u u))))]
-            [else ya])))
   
   ;; todo: overflow not likely; underflow likely
   (: fllog/base (Flonum Flonum -> Flonum))
