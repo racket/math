@@ -62,7 +62,7 @@
 (check-equal? (flhypot +inf.0 -inf.0) +inf.0)
 (check-equal? (flhypot 1. -inf.0) +inf.0)
 (check-equal? (flhypot +inf.0 1.) +inf.0)
-(check-equal? (flhypot +inf.0 +nan.0) +nan.0)
+(check-equal? (flhypot +inf.0 +nan.0) +inf.0)
   
 ;; ---------------------------------------------------------------------------------------------------
 ;; logs, exponents, bases, etc.
