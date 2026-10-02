@@ -637,9 +637,11 @@
 (check-equal? (matrix-norm (matrix [[1 2 3] [4 5 6]]))
               (matrix-norm (matrix [[1 2 3] [4 5 6]]) 2))
 
-;; This shouldn't overflow (so we check against `flhypot', which also shouldn't overflow)
-(check-equal? (matrix-norm (matrix [[1e200 1e199]]))
-              (flhypot 1e200 1e199))
+;; This shouldn't overflow (so we check against `flhypot', which also shouldn't overflow);
+;; `flhypot' rounds correctly, while the norm's scaled sum of squares can be an ulp off
+(check-true (<= (flulp-error (matrix-norm (matrix [[1e200 1e199]]))
+                             (flhypot 1e200 1e199))
+                1.0))
 
 ;; Taxicab (Manhattan) norm
 (check-equal? (matrix-norm (matrix [[1 2 3] [4 5 6]]) 1)
