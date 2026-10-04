@@ -222,6 +222,10 @@
   (parameterize ([array-strictness #f])
     (array-all-sum (inline-array-map nonstupid-magnitude M))))
 
+(: flonum-hypot (Nonnegative-Flonum Nonnegative-Flonum -> Nonnegative-Flonum))
+(define (flonum-hypot x y)
+  (assert (flhypot x y) nonnegative?))
+
 (: matrix-2norm (case-> ((Matrix Flonum) -> Nonnegative-Flonum)
                         ((Matrix Real) -> Nonnegative-Real)
                         ((Matrix Float-Complex) -> Nonnegative-Flonum)
@@ -229,11 +233,11 @@
 (define (matrix-2norm M)
   (parameterize ([array-strictness #f])
     (let ([M  (array-strict (inline-array-map nonstupid-magnitude M))])
-      ;; Compute this divided by the maximum to avoid underflow and overflow
-      (define mx (array-all-max M))
-      (cond [(and (rational? mx) (positive? mx))
-             (* mx (sqrt (array-all-sum (inline-array-map (λ (x) (sqr (/ x mx))) M))))]
-            [else  mx]))))
+      (cond
+        [(array-all-and (inline-array-map exact? M))
+         (sqrt (array-all-sum (inline-array-map sqr M)))]
+        [else
+         (array-all-fold (inline-array-map fl M) flonum-hypot 0.0)]))))
 
 (: matrix-inf-norm (case-> ((Matrix Flonum) -> Nonnegative-Flonum)
                            ((Matrix Real) -> Nonnegative-Real)
