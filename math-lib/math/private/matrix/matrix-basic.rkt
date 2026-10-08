@@ -229,11 +229,11 @@
 (define (matrix-2norm M)
   (parameterize ([array-strictness #f])
     (let ([M  (array-strict (inline-array-map nonstupid-magnitude M))])
-      ;; Compute this divided by the maximum to avoid underflow and overflow
-      (define mx (array-all-max M))
-      (cond [(and (rational? mx) (positive? mx))
-             (* mx (sqrt (array-all-sum (inline-array-map (λ (x) (sqr (/ x mx))) M))))]
-            [else  mx]))))
+      (cond
+        [(array-all-and (inline-array-map exact? M))
+         (sqrt (array-all-sum (inline-array-map sqr M)))]
+        [else
+         (array-all-fold (inline-array-map fl M) flhypot 0.0)]))))
 
 (: matrix-inf-norm (case-> ((Matrix Flonum) -> Nonnegative-Flonum)
                            ((Matrix Real) -> Nonnegative-Real)

@@ -641,6 +641,13 @@
 (check-equal? (matrix-norm (matrix [[1e200 1e199]]))
               (flhypot 1e200 1e199))
 
+;; Mixed exact and inexact entries use the flonum hypot path.
+(check-equal? (matrix-norm (matrix [[1 2.0]]))
+              (flhypot 1.0 2.0))
+
+;; A NaN entry should propagate through the flonum hypot path.
+(check-true (nan? (matrix-norm (matrix [[+nan.0]]))))
+
 ;; Taxicab (Manhattan) norm
 (check-equal? (matrix-norm (matrix [[1 2 3] [4 5 6]]) 1)
               (+ 1 2 3 4 5 6))
