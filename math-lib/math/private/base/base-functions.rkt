@@ -107,13 +107,15 @@
 ;; ===================================================================================================
 ;; Float-Complex functions
 
-(define-predicate float-complex? Float-Complex)
+(module complex-predicate typed/racket/base
+  (provide float-complex?)
+  (define-predicate float-complex? Float-Complex))
+(require 'complex-predicate)
 
 (module syntax-defs racket/base
-  (require (for-syntax racket/base
-                       typed/untyped-utils)
-           (only-in typed/racket/base : Number let:)
-           racket/flonum)
+  (require (for-syntax racket/base)
+           racket/flonum
+           (submod ".." complex-predicate))
   
   (provide inline-number->float-complex)
   
@@ -121,11 +123,13 @@
     (syntax-case stx ()
       [(_ z-expr)
        (syntax/loc stx
-         (let: ([z : Number  z-expr])
-           (if (number? z)
-               (make-rectangular (real->double-flonum (real-part z))
-                                 (real->double-flonum (imag-part z)))
-               (raise-argument-error 'number->float-complex "number?" z))))]))
+         (let ([z z-expr])
+           (cond
+             [(float-complex? z) z]
+             [(number? z)
+              (make-flrectangular (real->double-flonum (real-part z))
+                                  (real->double-flonum (imag-part z)))]
+             [else (raise-argument-error 'number->float-complex "number?" z)])))]))
   
   )  ; module
 
@@ -133,5 +137,7 @@
 
 (: number->float-complex (Number -> Float-Complex))
 (define (number->float-complex z)
-  (make-rectangular (fl (real-part z))
-                    (fl (imag-part z))))
+  (if (float-complex? z)
+      z
+      (make-flrectangular (fl (real-part z))
+                          (fl (imag-part z)))))
