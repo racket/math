@@ -18,7 +18,8 @@
          "private/distributions/bernoulli-dist.rkt"
          "private/distributions/poisson-dist.rkt"
          "private/distributions/discrete-dist.rkt"
-         "private/distributions/student-t-dist.rkt")
+         "private/distributions/student-t-dist.rkt"
+         "private/distributions/negative-binomial-dist.rkt")
 
 (provide (all-from-out
           "private/distributions/dist-struct.rkt"
@@ -39,4 +40,5 @@
           "private/distributions/bernoulli-dist.rkt"
           "private/distributions/poisson-dist.rkt"
           "private/distributions/discrete-dist.rkt"
-          "private/distributions/student-t-dist.rkt"))
+          "private/distributions/student-t-dist.rkt"
+          "private/distributions/negative-binomial-dist.rkt"))
