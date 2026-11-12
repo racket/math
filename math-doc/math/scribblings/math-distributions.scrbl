@@ -414,8 +414,37 @@ first success starting from zero.
                        #:x-label "at-most first success index" #:y-label "probability"
                        #:y-max 1)]
 }
+@subsection{Negative Binomial Distributions}
 
-@subsection{Poisson Distributions}
+@margin-note{Wikipedia:
+             @hyperlink["http://wikipedia.org/wiki/Negative_binomial_distribution"]{Negative Binomial Distribution}.}
+@deftogether[(@defidform[Negative-Binomial-Dist]
+              @defproc[(negative-binomial-dist [size Real 1] [prob Real 1/2])
+                       Negative-Binomial-Dist]
+              @defproc[(negative-binomial-dist-size [d Negative-Binomial-Dist]) Flonum]
+              @defproc[(negative-binomial-dist-prob [d Negative-Binomial-Dist]) Flonum])]{
+Represents the negative binomial distribution family parameterized by size and success probability.
+The random variable is the number of failures before the @racket[size]-th success in independent
+trials that each succeed with probability @racket[prob].
+
+Unlike the number of trials in a @racket[binomial-dist], @racket[size] does
+ not have to be an integer; it may be any positive real.
+ Non-integer sizes arise when the distribution is used to model
+overdispersed counts, as a @seclink["dist:gamma"]{gamma} mixture of
+ @seclink["dist:poisson"]{Poisson} distributions.
+@racket[(negative-binomial-dist 1 prob)] is equivalent to @racket[(geometric-dist prob)].
+
+@examples[#:eval untyped-eval
+                 (define d (negative-binomial-dist 2.5 0.4))
+                 (plot (discrete-histogram
+                        (map vector (build-list 16 values) (build-list 16 (distribution-pdf d))))
+                       #:x-label "number of failures" #:y-label "probability")
+                 (plot (function-interval (λ (x) 0) (ordered-dist-cdf d) -0.5 15.5)
+                       #:x-label "at-most number of failures" #:y-label "probability"
+                       #:y-max 1)]
+}
+
+@subsection[#:tag "dist:poisson"]{Poisson Distributions}
 
 @margin-note{Wikipedia:
              @hyperlink["http://wikipedia.org/wiki/Poisson_distribution"]{Poisson Distribution}.}
@@ -577,7 +606,7 @@ is the reciprocal of mean or scale. Construct exponential distributions from rat
                        #:legend-anchor 'bottom-right)]
 }
 
-@subsection{Gamma Distributions}
+@subsection[#:tag "dist:gamma"]{Gamma Distributions}
 
 @margin-note{Wikipedia:
              @hyperlink["http://wikipedia.org/wiki/Gamma_distribution"]{Gamma Distribution}.}
